@@ -1,6 +1,9 @@
 package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Entity.Post;
+import com.lycorisfun.fun.Service.PostService;
+import com.lycorisfun.fun.VO.PostListVO;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -62,4 +65,19 @@ public class PostController {
                 "https://free.picui.cn/free/2025/10/12/68ea87d94f445.jpg"));
         return posts;
     }
+
+
+
+
+//    private final PostService postService;
+//    /**
+//     * 搜索帖子
+//     * GET /posts/search?keyword=xxx&startTime=2025-10-01 00:00:00&page=1&size=10
+//     */
+//    @GetMapping("/search")
+//    public ApiResult<Page<PostListVO>> search(@Valid PostSearchDTO dto){
+//        // 表现层只负责：收参 → 调服务 → 返回统一包装
+//        Page<PostListVO> page = postService.searchPost(dto);
+//        return ApiResult.success(page);
+//    }
 }

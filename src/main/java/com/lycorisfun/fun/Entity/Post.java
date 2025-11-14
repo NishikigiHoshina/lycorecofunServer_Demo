@@ -12,11 +12,12 @@ public class Post {
     private String link;
     private String imgurl;
     private List<String> tag = new ArrayList<>();
+    private int likes;
 
     public Post() {
     }
 
-    public Post(Integer id,String title, String user, String main, String time,  String link, String imgurl, List<String> tag) {
+    public Post(Integer id,String title, String user, String main, String time,  String link, String imgurl, List<String> tag, int likes) {
         this.id = id;
         this.user = user;
         this.main = main;
@@ -25,15 +26,16 @@ public class Post {
         this.link = (link != null) ? link : "#/";
         this.imgurl = (imgurl != null) ? imgurl : "";
         this.tag = (tag != null) ? tag : new ArrayList<>();
+        this.likes = likes;
     }
 
     public Post(Integer id, String title, String user, String main,
                 String time, String link, String imgurl) {
-        this(id, title, user, main, time, link, imgurl, new ArrayList<>()); // 委托给全参
+        this(id, title, user, main, time, link, imgurl, new ArrayList<>(),0); // 委托给全参
     }
 
     public Post(Integer id, String title, String user, String main){
-        this(id, title, user, main, "" , "", "", new ArrayList<>());
+        this(id, title, user, main, "" , "", "", new ArrayList<>(),0);
     }
 
     public Integer getId() {
@@ -94,6 +96,12 @@ public class Post {
     }
     public void setTag(List<String> tag) {
         this.tag = (tag != null) ? tag : new ArrayList<>();
+    }
+    public int getLikes() {
+        return likes;
+    }
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 
     @Override

@@ -29,8 +29,8 @@ public class UserController {
     //public String home() {
         System.out.println("接收到前端请求，开始处理");
         User user = new User();
-        user.setId(id);
-        user.setName(name);
+        user.setUserId(id);
+        user.setUserName(name);
 //        System.out.println("home");
         System.out.println("id:" + id);
         System.out.println("name:" + name);

@@ -22,15 +22,15 @@ public class GlobalExceptionHandler {
         return map;
     }
 
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    @ExceptionHandler(value = NumberFormatException.class)
-//    public Map<String,Object> NumberFormatExceptionHandler(NumberFormatException e){
-//        Map<String,Object> map = new HashMap<>();
-//        map.put("code",500);
-//        map.put("msg","NumberFormatException-服务器格式转换错误-"+e.getMessage());
-//        map.put("data",e);
-//        return map;
-//    }
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = NumberFormatException.class)
+    public Map<String,Object> NumberFormatExceptionHandler(NumberFormatException e){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",500);
+        map.put("msg","NumberFormatException-服务器格式转换错误-"+e.getMessage());
+        map.put("data",e);
+        return map;
+    }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = Exception.class)
@@ -38,6 +38,17 @@ public class GlobalExceptionHandler {
         Map<String,Object> map = new HashMap<>();
         map.put("code",500);
         map.put("msg","OtherException-服务器其他错误-"+e.getMessage());
+        map.put("data",e);
+        return map;
+    }
+
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = BusinessException.class)
+    public Map<String,Object> NumberFormatExceptionHandler(BusinessException e){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",e.getCode());
+        map.put("msg","ServiceException-业务类错误-"+e.getMessage());
         map.put("data",e);
         return map;
     }

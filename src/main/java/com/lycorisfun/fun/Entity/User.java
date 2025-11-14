@@ -1,35 +1,55 @@
 package com.lycorisfun.fun.Entity;
 
+import java.util.Date;
+
 public class User {
-    private Integer id;
-    private String name;
+    private Integer userId;
+    private String userName;
     private String email;
     private String password;
+    private String gender;
+    private Date registerDate;
+    private String signature;
+    private String avaterURL;
+    private String PersonalIndexLink;
 
     public User() {
     }
 
-    public User(Integer id, String name, String email, String password) {
-        this.id = id;
-        this.name = name;
+    public User(Integer userId, String userName, String email, String password, String gender, Date registerDate, String signature, String avaterURL, String PersonalIndexLink){
+        this.userId = userId;
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.gender = gender;
+        this.registerDate = registerDate;
+        this.signature = signature;
+        this.avaterURL = avaterURL;
+        this.PersonalIndexLink = PersonalIndexLink;
+
+    }
+
+    public User(Integer id, String userName, String email, String password) {
+        this.userId = id;
+        this.userName = userName;
         this.email = email;
         this.password = password;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getEmail() {
@@ -46,13 +66,49 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+    public String getGender() {
+        return gender;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
+    }
+    public String getSignature() {
+        return signature;
+    }
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+    public String getAvaterURL() {
+        return avaterURL;
+    }
+    public void setAvaterURL(String avaterURL) {
+        this.avaterURL = avaterURL;
+    }
+    public String getPersonalIndexLink() {
+        return PersonalIndexLink;
+    }
+    public void setPersonalIndexLink(String personalIndexLink) {
+        PersonalIndexLink = personalIndexLink;
+    }
+
 
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "id=" + userId +
+                ", name='" + userName + '\'' +
                 ", email='" + email + '\'' +
+                ", gender='" + gender + '\'' +
+                ", registerDate=" + registerDate +
+                ", signature='" + signature + '\'' +
+                ", avaterURL='" + avaterURL + '\'' +
+                ", PersonalIndexLink='" + PersonalIndexLink + '\'' +
                 '}';
     }
 }
