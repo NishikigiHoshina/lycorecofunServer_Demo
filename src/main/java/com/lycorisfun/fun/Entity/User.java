@@ -12,11 +12,12 @@ public class User {
     private String signature;
     private String avaterURL;
     private String PersonalIndexLink;
+    private int status;
 
     public User() {
     }
 
-    public User(Integer userId, String userName, String email, String password, String gender, Date registerDate, String signature, String avaterURL, String PersonalIndexLink){
+    public User(Integer userId, String userName, String email, String password, String gender, Date registerDate, String signature, String avaterURL, String PersonalIndexLink, int status){
         this.userId = userId;
         this.userName = userName;
         this.email = email;
@@ -26,11 +27,17 @@ public class User {
         this.signature = signature;
         this.avaterURL = avaterURL;
         this.PersonalIndexLink = PersonalIndexLink;
-
+        this.status = status;
     }
 
     public User(Integer id, String userName, String email, String password) {
         this.userId = id;
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
         this.password = password;
@@ -96,6 +103,12 @@ public class User {
     public void setPersonalIndexLink(String personalIndexLink) {
         PersonalIndexLink = personalIndexLink;
     }
+    public int getStatus() {
+        return status;
+    }
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
 
     @Override
@@ -109,6 +122,7 @@ public class User {
                 ", signature='" + signature + '\'' +
                 ", avaterURL='" + avaterURL + '\'' +
                 ", PersonalIndexLink='" + PersonalIndexLink + '\'' +
+                ", status=" + status +
                 '}';
     }
 }

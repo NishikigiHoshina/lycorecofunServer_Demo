@@ -10,15 +10,16 @@ public interface PostMapper {
     public List<Post> findAll();
     public Post findById(int id);
 
-    public int insert(Post post);
+    public int add(Post post);
     public int delbyid(int id);
 
     public Post findByTitle(String title);
     public Post findByContent(String content);
-    public Post findByTitleAndContent(String title, String content);
+    //public Post findByTitleAndContent(String title, String content);
     public Post findBytime(String time);
-    public Post findByUser(String user);
+    public Post findByUser(int userid);
+    public List<Post> findByUserid(int userid);
 
-    public int save(Post post);
+    public int updatePostInfo(Post post);
 
 }

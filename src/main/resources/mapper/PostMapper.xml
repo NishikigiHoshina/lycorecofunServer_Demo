@@ -5,16 +5,56 @@
 <mapper namespace="com.lycorisfun.fun.Mapper.PostMapper">
 
     <select id="findAll" resultType="Post">
-        select * from Post
+        select * from posts
     </select>
 
-    <select id="findById" parameterType="Integer">
-        select from Post where id=#{id}
+    <select id="findById" parameterType="Integer" resultType="Post">
+        select * from posts where postid=#{postid}
     </select>
 
-    <insert id="insert" parameterType="Post">
-        insert into Post(id,title,user,main,time,like)
-        values (#{id},#{title},#{user},#{main},#{time},#{like})
+    <select id="findByUserid" parameterType="Integer" resultType="Post">
+        select * from posts where post_userid=#{post_userid}
+    </select>
+
+    <insert id="add" parameterType="Post">
+        insert into posts(postid,title,post_userid,content,created_at,like_count)
+        values (#{postid},#{title},#{post_userid},#{content},#{created_at},#{like_count})
     </insert>
+
+    <select id="findByTitle" parameterType="String" resultType="Post">
+        SELECT *
+        FROM posts
+        WHERE title LIKE CONCAT('%', #{title}, '%')
+    </select>
+
+    <select id="findBytime" parameterType="String" resultType="Post">
+        SELECT *
+        FROM posts
+        WHERE created_at LIKE CONCAT('%', #{title}, '%')
+    </select>
+
+    <update id="delbyid" parameterType="Integer">
+        UPDATE posts
+        SET    status = 2
+        WHERE  postd = #{postId};
+    </update>
+
+    <update id="updatePostInfo" parameterType="Post">
+        UPDATE posts
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="post_userid != null">post_userid = #{post_userid},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="created_at != null">created_at = #{created_at},</if>
+            <if test="like_count != null">like_count = #{like_count},</if>
+            <if test="link != null">link = #{link},</if>
+            <if test="imgurl != null">imgurl = #{imgurl},</if>
+            <if test="parent_id != null">parent_id = #{parent_id},</if>
+            <if test="root_id != null">root_id = #{root_id},</if>
+            <if test="reply_count != null">reply_count = #{reply_count},</if>
+            <!-- 其他字段同理 -->
+        </set>
+        WHERE postid = #{postid}
+    </update>
 
 </mapper>

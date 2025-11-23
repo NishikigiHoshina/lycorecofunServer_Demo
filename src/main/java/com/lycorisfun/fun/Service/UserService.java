@@ -13,7 +13,13 @@ public interface UserService {
 
     public User findById(Integer id);
 
+    public List<User> findByUsername(String userName);
+
+
     public void save(User userInfo);
+
+    User updateUserInfo(User u);
+
 
 }
 

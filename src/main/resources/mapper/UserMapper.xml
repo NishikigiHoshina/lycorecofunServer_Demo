@@ -5,16 +5,45 @@
 <mapper namespace="com.lycorisfun.fun.Mapper.UserMapper">
 
     <select id="findAll" resultType="User">
-        select * from user
+        select * from users
     </select>
 
     <select id="findById" parameterType="Integer">
-        select * from user where id = #{id}
+        select * from users where userId = #{userId}
     </select>
 
-<!--    <insert id="insert" parameterType="User">-->
-<!--        insert into user(id,title,user,main,time,like)-->
-<!--        values (#{id},#{title},#{user},#{main},#{time},#{like})-->
-<!--    </insert>-->
+    <insert id="insert" parameterType="User">
+        insert into users(userName,email,password)
+        values (#{userName},#{email},#{password})
+    </insert>
+
+    <select id="findByUsername" parameterType="String" resultType="User">
+        SELECT *
+        FROM users
+        WHERE userName LIKE CONCAT('%', #{userName}, '%')
+    </select>
+
+    <update id="deletebyid" parameterType="Integer">
+        UPDATE users
+        SET    status = 2
+        WHERE  userId = #{userId};
+    </update>
+
+    <update id="updateUserInfo" parameterType="User">
+        UPDATE users
+        <set>
+            <if test="userName != null">userName = #{userName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            <if test="avaterURL != null">avaterURL = #{avaterURL},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="PersonalIndexLink != null">PersonalIndexLink = #{PersonalIndexLink},</if>
+            <if test="status != null">status = #{status},</if>
+
+            <!-- 其他字段同理 -->
+        </set>
+        WHERE userId = #{userId}
+    </update>
 
 </mapper>

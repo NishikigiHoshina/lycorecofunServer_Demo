@@ -2,8 +2,10 @@ package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Entity.User;
 
+import com.lycorisfun.fun.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter;
 
@@ -14,6 +16,8 @@ import java.util.*;
 @CrossOrigin
 public class UserController {
 
+    @Autowired
+    private UserService userService;
 
     private final HttpRequestHandlerAdapter httpRequestHandlerAdapter;
     private final HttpServletResponse httpServletResponse;
@@ -48,9 +52,7 @@ public class UserController {
     @GetMapping("/userlist")
     public List<User> userlist() {
         List<User> users = new ArrayList<>();
-        users.add(new User(1,"张三", "zs@163.com",null));
-        users.add(new User(2,"李四", "ls@163.com",null));
-        users.add(new User(3,"王五", "ww@163.com",null));
+        users=userService.findAll();
         return users;
     }
 

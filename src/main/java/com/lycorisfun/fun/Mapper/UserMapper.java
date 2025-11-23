@@ -2,6 +2,7 @@ package com.lycorisfun.fun.Mapper;
 
 import com.lycorisfun.fun.Entity.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,9 +14,12 @@ public interface UserMapper {
     public int insert(User userinfo);
     public int deletebyid(int id);
 
-    public User findByName(String name);
+    List<User> findByUsername(@Param("userName") String userName);
+
     public User findBytime(String time);
     public User findByUser(String user);
 
     public int save(User post);
+
+    public int updateUserInfo(User u);
 }

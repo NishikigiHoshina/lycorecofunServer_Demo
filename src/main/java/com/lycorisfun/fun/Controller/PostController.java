@@ -23,7 +23,7 @@ public class PostController {
         posts.add(new Post(
                 1,
                 "Hello, Nice to meet you!",
-                "xxxLUCY",
+                1,
                 "hello everyone,i want to show my exciting to meet you, hope we can get on well",
                 "2025-10-11 18:07",
                 "#/posts/1",
@@ -32,7 +32,7 @@ public class PostController {
         posts.add(new Post(
                 2,
                 "How could i change my avater?",
-                "Dark Angels",
+                2,
                 "wait…could anyone tell me how could i change my avater? the default one looks not pretty……",
                 "2025-10-11 23:17",
                 "#/posts/2",
@@ -41,7 +41,7 @@ public class PostController {
         posts.add(new Post(
                 3,
                 "Hello, Nice to meet you!",
-                "xxxLUCY",
+                2,
                 "hello everyone,i want to show my exciting to meet you, hope we can get on well",
                 "2025-10-11 18:07",
                 "#/posts/1",
@@ -49,7 +49,7 @@ public class PostController {
         posts.add(new Post(
                 4,
                 "How could i change my avater?",
-                "Dark Angels",
+                2,
                 "wait…could anyone tell me how could i change my avater? the default one looks not pretty……",
                 "2025-10-11 23:17",
                 "#/posts/2",
@@ -58,7 +58,7 @@ public class PostController {
         posts.add(new Post(
                 5,
                 "Hello, Nice to meet you!",
-                "xxxLUCY",
+                2,
                 "hello everyone,i want to show my exciting to meet you, hope we can get on well",
                 "2025-10-11 18:07",
                 "#/posts/1",

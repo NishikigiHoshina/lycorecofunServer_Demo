@@ -13,6 +13,11 @@ public interface PostService {
 
     public Post findById(Integer id);
 
-    public void update(Post userInfo);
+    public List<Post> findByUser(String username);
+
+//    public List<Post> findByUserid(Integer userid);
+
+    public void updatePostInfo(Post userInfo);
+
 }
 

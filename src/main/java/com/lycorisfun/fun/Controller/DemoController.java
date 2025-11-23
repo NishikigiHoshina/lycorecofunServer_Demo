@@ -1,15 +1,10 @@
 package com.lycorisfun.fun.Controller;
 import com.lycorisfun.fun.Entity.Post;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter;
 
-import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -57,16 +52,16 @@ public class DemoController {
         list.add(new Post(
                 1,
                 "Hello, Nice to meet you!",
-                "xxxLUCY",
+                2,
                 "hello everyone,i want to show my exciting to meet you, hope we can get on well",
-                "2025-10-11 18:07",
+                "2025-10-11 18:07:00",
                 "#/posts/1",
                 "https://free.picui.cn/free/2025/10/12/68ea87d94f445.jpg"));
 
         list.add(new Post(
                 2,
                 "How could i change my avater?",
-                "Dark Angels",
+                2,
                 "wait…could anyone tell me how could i change my avater? the default one looks not pretty……",
                 "2025-10-11 23:17",
                 "#/posts/2",
@@ -75,7 +70,7 @@ public class DemoController {
         Integer id=num;
         List<Post> post=new ArrayList<>();
         for(int i=0;i<list.size();i++){
-            if(Objects.equals(id, list.get(i).getId())){
+            if(Objects.equals(id, list.get(i).getPostid())){
                 post.add(list.get(i));
             }
         }
@@ -90,7 +85,7 @@ public class DemoController {
         public Map<String, Object> addPost(@RequestParam Integer id,
                                            @RequestParam String title,
                                            @RequestParam String content,
-                                           @RequestParam String user) {
+                                           @RequestParam int user) {
         Post post = new Post(id, title, user, content);
 //        String strid=request.getParameter("id");
 //        String title=request.getParameter("title");
@@ -115,13 +110,13 @@ public class DemoController {
         @NotBlank
         private String title;
         private String content;
-        private String user;
+        private int userid;
     }
 
     @PostMapping("/demoAddpost")
     public Map<String, Object> addPost(@ModelAttribute PostDTO dto) {
         //    public Map<String, Object> addPost(@Valid @RequestBody PostDTO dto) {
-        Post post = new Post(dto.getId(), dto.getTitle(), dto.getUser(), dto.getContent());
+        Post post = new Post(dto.getId(), dto.getTitle(), dto.getUserid(), dto.getContent());
         Map<String,Object> map=new HashMap<>();
         map.put("status","200");
         map.put("success","true");
