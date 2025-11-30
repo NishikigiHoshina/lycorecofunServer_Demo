@@ -2,46 +2,55 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.lycorisfun.fun.Mapper.PostMapper">
+<mapper namespace="com.lycorisfun.fun.Mapper.NewsMapper">
 
-    <select id="findAll" resultType="Post">
-        select * from posts
+    <select id="findAll" resultType="News">
+        select * from news
     </select>
 
-    <select id="findlist" parameterType="Integer" resultType="Post">
-        select * from posts where status=1 ORDER BY created_at DESC
-        LIMIT #{findnum};
+    <select id="findById" parameterType="Integer" resultType="News">
+        select * from news where news_id=#{news_id}
     </select>
 
-    <select id="findById" parameterType="Integer" resultType="Post">
-        select * from posts where postid=#{postid}
-    </select>
 
-    <select id="findByUserid" parameterType="Integer" resultType="Post">
-        select * from posts where post_userid=#{post_userid}
-    </select>
-
-    <insert id="add" parameterType="Post">
-        insert into posts(postid,title,post_userid,content,created_at,like_count)
-        values (#{postid},#{title},#{post_userid},#{content},#{created_at},#{like_count})
+    <insert id="add" parameterType="News">
+        insert into news(news_id,title,imgUrl,news_link)
+        values (#{news_id},#{title},#{imgUrl},#{news_link})
     </insert>
 
-    <select id="findByTitle" parameterType="String" resultType="Post">
+    <select id="findByTitle" parameterType="String" resultType="News">
         SELECT *
-        FROM posts
+        FROM news
         WHERE title LIKE CONCAT('%', #{title}, '%')
     </select>
 
-    <select id="findBytime" parameterType="String" resultType="Post">
+    <select id="findBytime" parameterType="String" resultType="News">
         SELECT *
-        FROM posts
+        FROM news
         WHERE created_at LIKE CONCAT('%', #{title}, '%')
     </select>
 
+    <select id="findAllNews" resultType="News">
+        SELECT *
+        FROM news
+        WHERE imgUrl is not null
+    </select>
+
+    <select id="findLatestNews" parameterType="Integer" resultType="News">
+        select *
+        from news
+        where imgUrl is not null ORDER BY time DESC          -- 按日期最新在前
+        LIMIT #{findnum};                   -- 只取  条
+    </select>
+
+    <select id="findAnnouncement" resultType="News">
+        select * from news where imgUrl is null
+    </select>
+
     <update id="delbyid" parameterType="Integer">
-        UPDATE posts
-        SET    status = 0
-        WHERE  postid = #{postid};
+        UPDATE news
+        SET    status = 2
+        WHERE  postd = #{news_id};
     </update>
 
     <update id="updatePostInfo" parameterType="Post">

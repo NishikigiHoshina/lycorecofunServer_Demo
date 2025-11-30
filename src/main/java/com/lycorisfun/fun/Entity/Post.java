@@ -1,12 +1,13 @@
 package com.lycorisfun.fun.Entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
     private Integer postid;
     private int post_userid;
-    private String userName;
+    private String post_username;
     private String content;
     private String created_at;
     private String title;
@@ -22,21 +23,21 @@ public class Post {
     public Post() {
     }
 
-    public Post(Integer postid, String title, int post_userid, String userName, String content, String created_at, String link, String imgurl, List<String> tag, int like_count, int reply_count, int root_id, int parent_id, int status) {
+    public Post(Integer postid, String title, int post_userid, String post_username, String content, String created_at, String link, String imgurl, List<String> tag, int like_count, int reply_count, int root_id, int parent_id, int status) {
         this.postid = postid;
         this.post_userid = post_userid;
-        this.userName = userName != null ? userName : "";
+        this.post_username = post_username != null ? post_username : "unknown";
         this.content = content;
-        this.created_at = (created_at != null) ? created_at : "1970-1-1 00:00:00";
+        this.created_at = (created_at != null) ? created_at : LocalDateTime.now().toString() ;
         this.title = title;
         this.link = (link != null) ? link : "#/";
         this.imgurl = (imgurl != null) ? imgurl : "";
         this.tag = (tag != null) ? tag : new ArrayList<>();
-        this.like_count = (like_count != 0) ? like_count : 0;
-        this.reply_count = (reply_count != 0) ? reply_count : 0;
-        this.root_id = (root_id != 0) ? root_id : 0;
-        this.parent_id = (parent_id != 0) ? parent_id : 0;
-        this.status = (status != 0) ? status : 0;
+        this.like_count = like_count;
+        this.reply_count = reply_count;
+        this.root_id = root_id;
+        this.parent_id = parent_id;
+        this.status = status;
     }
     //全参构造方法
 
@@ -46,7 +47,7 @@ public class Post {
     }
 
     public Post(Integer postid, String title, int post_userid, String content){
-        this(postid, title, post_userid,"", content, "" , "", "", new ArrayList<>(),0,0,0,0,0);// 委托给全参
+        this(postid, title, post_userid,"", content, null , "", "", new ArrayList<>(),0,0,0,0,0);// 委托给全参
     }
 
     public Integer getPostid() {
@@ -64,11 +65,11 @@ public class Post {
     public void setPost_userid(int post_userid) {
         this.post_userid = post_userid;
     }
-    public String getUserName() {
-        return userName;
+    public String getPost_username() {
+        return post_username;
     }
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setPost_username(String post_username) {
+        this.post_username = post_username;
     }
 
     public String getContent() {
@@ -150,8 +151,8 @@ public class Post {
     public String toString() {
         return "Post{" +
                 "id=" + postid +
-                ", userid='" + post_userid + '\'' +
-                ", username='" + userName + '\'' +
+                ", post_userid='" + post_userid + '\'' +
+                ", username='" + post_username + '\'' +
                 ", main='" + content + '\'' +
                 ", time='" + created_at + '\'' +
                 ", title='" + title + '\'' +

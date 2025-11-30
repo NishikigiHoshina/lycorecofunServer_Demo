@@ -6,8 +6,9 @@ import java.util.List;
 
 public interface PostService {
     public List<Post> findAll();
+    public List<Post> findlist(Integer findnum);
 
-    public void delById(Integer id);
+    public int delById(Integer id);
 
     public void add(Post userInfo);
 
@@ -15,9 +16,11 @@ public interface PostService {
 
     public List<Post> findByUser(String username);
 
+    public List<Post> findByTitle(String title);
+
 //    public List<Post> findByUserid(Integer userid);
 
-    public void updatePostInfo(Post userInfo);
+    public Post updatePostInfo(Post postInfo);
 
 }
 

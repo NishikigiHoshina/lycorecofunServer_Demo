@@ -1,9 +1,11 @@
 package com.lycorisfun.fun;
 
+import com.lycorisfun.fun.Entity.News;
 import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Entity.User;
 import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
+import com.lycorisfun.fun.Service.NewsService;
 import com.lycorisfun.fun.Service.PostService;
 import com.lycorisfun.fun.Service.UserService;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,9 @@ class LycorisfunServerApplicationTests {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private NewsService newsService;
 
     @Test
     public void test(){
@@ -91,6 +96,35 @@ class LycorisfunServerApplicationTests {
         postList=postService.findByUser("Test");
         for(Post post:postList){
             System.out.println(post);
+        }
+    }
+
+    @Test
+    public void test_findPostByTitle(){
+        List<Post> list=postService.findByTitle("h");
+        for(Post post:list){
+            System.out.println(post);
+        }
+    }
+
+    @Test
+    public void test_findAnnoncement(){
+        System.out.println(newsService.findAnnouncement());
+    }
+
+    @Test
+    public void test_updatePostinfo(){
+        //更新用户信息测试
+        Post post=new Post(4,"test2",4,null);
+        Post u=postService.updatePostInfo(post);
+        System.out.println(u);
+    }
+
+    @Test
+    public void test_newslist(){
+        List<News> newsList=newsService.findLatestNews(10);
+        for(News news:newsList){
+            System.out.println(news);
         }
     }
 }

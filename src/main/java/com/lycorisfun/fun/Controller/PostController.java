@@ -4,6 +4,7 @@ import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Service.PostService;
 import com.lycorisfun.fun.VO.PostListVO;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -14,70 +15,55 @@ import java.util.List;
 
 public class PostController {
 
+    @Autowired
+    PostService postService;
 
     //postRequest: http://localhost:12808/lycorisfunServer/api/getPostList
     @GetMapping("/getPostList")
     public List<Post> getPostList(){
-
-        List<Post> posts = new ArrayList<>();
-        posts.add(new Post(
-                1,
-                "Hello, Nice to meet you!",
-                1,
-                "hello everyone,i want to show my exciting to meet you, hope we can get on well",
-                "2025-10-11 18:07",
-                "#/posts/1",
-                "https://free.picui.cn/free/2025/10/12/68ea87d94f445.jpg"));
-
-        posts.add(new Post(
-                2,
-                "How could i change my avater?",
-                2,
-                "wait…could anyone tell me how could i change my avater? the default one looks not pretty……",
-                "2025-10-11 23:17",
-                "#/posts/2",
-                "https://free.picui.cn/free/2025/10/12/68ea81a34978d.png"
-                ));
-        posts.add(new Post(
-                3,
-                "Hello, Nice to meet you!",
-                2,
-                "hello everyone,i want to show my exciting to meet you, hope we can get on well",
-                "2025-10-11 18:07",
-                "#/posts/1",
-                "https://free.picui.cn/free/2025/10/12/68ea87d94f445.jpg"));
-        posts.add(new Post(
-                4,
-                "How could i change my avater?",
-                2,
-                "wait…could anyone tell me how could i change my avater? the default one looks not pretty……",
-                "2025-10-11 23:17",
-                "#/posts/2",
-                "https://free.picui.cn/free/2025/10/12/68ea81a34978d.png"
-        ));
-        posts.add(new Post(
-                5,
-                "Hello, Nice to meet you!",
-                2,
-                "hello everyone,i want to show my exciting to meet you, hope we can get on well",
-                "2025-10-11 18:07",
-                "#/posts/1",
-                "https://free.picui.cn/free/2025/10/12/68ea87d94f445.jpg"));
+        List<Post> posts;
+        posts=postService.findAll();
         return posts;
     }
 
+    @PostMapping("/postlist")
+    public List<Post> postList(){
+        List<Post> posts=postService.findlist(10);
+        return posts;
+    }
 
+    @PostMapping("/getPostByid")
+    public Post getPostById(@RequestBody Integer postid){
+        Post post=postService.findById(postid);
+        return post;
+    }
 
+    @PostMapping("/searchBytitle")
+    public List<Post> searchByTitle(@RequestParam String title){
+        List<Post> posts;
+        posts=postService.findByTitle(title);
+        return posts;
+    }
 
-//    private final PostService postService;
-//    /**
-//     * 搜索帖子
-//     * GET /posts/search?keyword=xxx&startTime=2025-10-01 00:00:00&page=1&size=10
-//     */
-//    @GetMapping("/search")
-//    public ApiResult<Page<PostListVO>> search(@Valid PostSearchDTO dto){
-//        // 表现层只负责：收参 → 调服务 → 返回统一包装
-//        Page<PostListVO> page = postService.searchPost(dto);
-//        return ApiResult.success(page);
-//    }
+    @PostMapping("/searchByuser")
+    public List<Post> searchByUser(@RequestParam String username){
+        List<Post> posts;
+        posts=postService.findByUser(username);
+        return posts;
+    }
+
+    @PostMapping("/updatePostinfo")
+    public void updatePostinfo(@Valid @RequestBody Post post ){
+        System.out.println(post);
+        if(post.getPostid()>0){
+            postService.updatePostInfo(post);
+        }
+    }
+
+    @PostMapping("/deletePost")
+    public void deletePost(@RequestParam Integer postid){
+        if(postid>0){
+            System.out.println("影响"+postService.delById(postid)+"行");
+        }
+    }
 }

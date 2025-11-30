@@ -1,39 +1,43 @@
 package com.lycorisfun.fun.Entity;
 
 public class News {
-    private int id;
+    private int news_id;
     private String title;
     private String content;
     private String author;
-    private String date;
+    private String time;
     private String imgurl;
-    private String link;
-    public News(int id, String title, String content, String author, String date, String imgurl, String link) {
-        this.id = id;
+    private String news_link;
+    public News(int news_id, String title, String content, String author, String time, String imgurl, String news_link) {
+        this.news_id = news_id;
         this.title = title;
         this.content = content;
         this.author = author;
-        this.date = date;
+        this.time = time != null ? time : "BeyondtheTime" ;
         this.imgurl = imgurl;
-        this.link = link;
+        this.news_link =  news_link;
     }
 
-    public News(int id,String title, String imgurl, String link) {
-        this.id = id;
+    public News(int news_id, String title, String imgurl, String news_link,String time) {
+        this.news_id = news_id;
         this.title = title;
         this.imgurl = imgurl;
-        this.link = link;
+        this.news_link = news_link;
         this.author="未知";
         this.content="无";
-        this.date="beyondTime";
+        this.time =time != null ? time : "BeyondtheTime" ;
 
     }
 
-    public int getId() {
-        return id;
+    public News() {
+
     }
-    public void setId(int id) {
-        this.id = id;
+
+    public int getNews_id() {
+        return news_id;
+    }
+    public void setNews_id(int news_id) {
+        this.news_id = news_id;
     }
     public String getTitle() {
         return title;
@@ -53,11 +57,11 @@ public class News {
     public void setAuthor(String author) {
         this.author = author;
     }
-    public String getDate() {
-        return date;
+    public String getTime() {
+        return time;
     }
-    public void setDate(String date) {
-        this.date = date;
+    public void setTime(String time) {
+        this.time = time;
     }
     public String getImgurl() {
         return imgurl;
@@ -65,11 +69,11 @@ public class News {
     public void setImgurl(String imgurl) {
         this.imgurl = imgurl;
     }
-    public String getLink() {
-        return link;
+    public String getNews_link() {
+        return news_link;
     }
-    public void setLink(String link) {
-        this.link = link;
+    public void setNews_link(String news_link) {
+        this.news_link = news_link;
     }
 
 

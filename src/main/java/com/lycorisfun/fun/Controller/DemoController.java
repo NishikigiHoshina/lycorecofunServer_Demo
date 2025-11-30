@@ -1,10 +1,13 @@
 package com.lycorisfun.fun.Controller;
 import com.lycorisfun.fun.Entity.Post;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -123,6 +126,27 @@ public class DemoController {
         map.put("msg","添加成功");
         map.put("post",post);
         return map;
+    }
+
+    @GetMapping("/getStatus")
+    public Map<String, Object> getStatus() {
+        Map<String, Object> map = new HashMap<String,Object>();
+        map.put("statu", 418);
+        map.put("msg","I'm a teapot");
+        map.put("whatisthis", "别担心！状态码 418 实际上是一个愚人节玩笑。它在 RFC 2324 中定义，该 RFC 是一个关于超文本咖啡壶控制协议（HTCPCP）的笑话文件。在这个笑话中，418 状态码是作为一个玩笑加入到 HTTP 协议中的");
+        return map;
+    }
+
+
+    //前端请求： http://localhost:12808/lycorisfunServer/getgood01?id=1&name=apple
+    @RequestMapping("/getgood01")
+    public void getgood01(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String strid = request.getParameter("id");
+        String name=request.getParameter("name");
+        int id= Integer.parseInt(strid);
+        String str="id:"+id+",name:"+name;
+        response.setContentType("application/json;charset=utf-8");
+        response.getWriter().write(str);
     }
 }
 
