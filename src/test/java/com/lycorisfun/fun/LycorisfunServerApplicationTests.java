@@ -3,6 +3,8 @@ package com.lycorisfun.fun;
 import com.lycorisfun.fun.Entity.News;
 import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Entity.User;
+import com.lycorisfun.fun.Entity.function;
+import com.lycorisfun.fun.Mapper.FuncMapper;
 import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.NewsService;
@@ -30,6 +32,10 @@ class LycorisfunServerApplicationTests {
 
     @Autowired
     private NewsService newsService;
+
+    @Autowired
+    private FuncMapper funcMapper;
+
 
     @Test
     public void test(){
@@ -125,6 +131,21 @@ class LycorisfunServerApplicationTests {
         List<News> newsList=newsService.findLatestNews(10);
         for(News news:newsList){
             System.out.println(news);
+        }
+    }
+
+    @Test
+    public void test_findfunc(){
+        function func=funcMapper.funcStatus("uploadWork");
+        System.out.println(func.getFunction_status());
+
+    }
+
+    @Test
+    public void test_funclist(){
+        List<function> funclist=funcMapper.listFuncStatus();
+        for(function func:funclist){
+            System.out.println(func);
         }
     }
 }

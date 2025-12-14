@@ -2,6 +2,7 @@ package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Entity.User;
 
+import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,8 +13,9 @@ import org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter;
 import java.io.IOException;
 import java.util.*;
 
-@RestController
-@CrossOrigin
+@RestController                 // ★ 1. 让 Spring 接管
+@RequestMapping("/api")        // ★ 2. 统一前缀（可选）
+@CrossOrigin(origins = "*")    // 3. 现在才会生效
 public class UserController {
 
     @Autowired
@@ -58,8 +60,10 @@ public class UserController {
 
     @GetMapping("/userlist")
     public List<User> userlist() {
-        List<User> users = new ArrayList<>();
-        users=userService.findAll();
+        List<User> users = userService.findAll();
+        if(users==null){
+            throw new BusinessException(404,"找不到数据");
+        }
         return users;
     }
 

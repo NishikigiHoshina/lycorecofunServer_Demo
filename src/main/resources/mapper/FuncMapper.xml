@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lycorisfun.fun.Mapper.FuncMapper">
+
+    <select id="listFuncStatus" resultType="function">
+        select *
+        from functionform
+        where function_link is not null
+    </select>
+
+    <insert id="insertFunc" parameterType="function">
+        insert into functionform(function_name,function_status,function_link)
+        values (#{function_name},#{function_status},#{function_link})
+    </insert>
+
+    <update id="changeStatus" parameterType="function">
+        UPDATE functionform
+        <set>
+            <if test="function_status != null">function_status = #{function_status},</if>
+            <if test="function_link != null">function_link = #{function_link},</if>
+            <!-- 其他字段同理 -->
+        </set>
+        WHERE function_name = #{function_name}
+    </update>
+    
+    <select id="findfunc" parameterType="String" resultType="function">
+        select * 
+        from functionform 
+        where function_name=#{function_name}
+    </select>
+    
+    <select id="funcStatus" parameterType="String" resultType="function">
+        select *
+        from functionform
+        where  function_name=#{function_name}
+    </select>
+
+    <select id="findlink" resultType="function">
+        select *
+        from functionform
+        where function_name='IndexIMGlink' and function_status=1
+    </select>
+
+</mapper>

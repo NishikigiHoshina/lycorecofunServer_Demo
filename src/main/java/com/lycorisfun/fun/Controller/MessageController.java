@@ -1,7 +1,11 @@
 package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Entity.News;
+import com.lycorisfun.fun.Exception.BusinessException;
+import com.lycorisfun.fun.Mapper.FuncMapper;
+import com.lycorisfun.fun.Service.FuncService;
 import com.lycorisfun.fun.Service.NewsService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +40,7 @@ public class MessageController {
         String Announcement=newsService.findAnnouncement().getNews_link();
         return Announcement;
     }
+
+
 
 }

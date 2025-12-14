@@ -8,7 +8,7 @@ public class User {
     private String email;
     private String password;
     private String gender;
-    private Date registerDate;
+    private Date registerTime;
     private String signature;
     private String avaterURL;
     private String PersonalIndexLink;
@@ -17,13 +17,13 @@ public class User {
     public User() {
     }
 
-    public User(Integer userId, String userName, String email, String password, String gender, Date registerDate, String signature, String avaterURL, String PersonalIndexLink, int status){
+    public User(Integer userId, String userName, String email, String password, String gender, Date registerTime, String signature, String avaterURL, String PersonalIndexLink, int status){
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.password = password;
         this.gender = gender;
-        this.registerDate = registerDate;
+        this.registerTime = registerTime;
         this.signature = signature;
         this.avaterURL = avaterURL;
         this.PersonalIndexLink = PersonalIndexLink;
@@ -79,11 +79,11 @@ public class User {
     public void setGender(String gender) {
         this.gender = gender;
     }
-    public Date getRegisterDate() {
-        return registerDate;
+    public Date getRegisterTime() {
+        return registerTime;
     }
-    public void setRegisterDate(Date registerDate) {
-        this.registerDate = registerDate;
+    public void setRegisterTime(Date registerTime) {
+        this.registerTime = registerTime;
     }
     public String getSignature() {
         return signature;
@@ -118,7 +118,7 @@ public class User {
                 ", name='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
-                ", registerDate=" + registerDate +
+                ", registerDate=" + registerTime +
                 ", signature='" + signature + '\'' +
                 ", avaterURL='" + avaterURL + '\'' +
                 ", PersonalIndexLink='" + PersonalIndexLink + '\'' +

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lycorisfun.fun.Mapper.LogMapper">
+
+    <select id="listLog" resultType="LogRecord">
+        select * from logrecords
+    </select>
+
+    <insert id="insertLog" parameterType="LogRecord">
+        insert into logrecords(ip,time,classname,classmethod,httpmethod)
+        values (#{IPAddress},#{time},#{className},#{classMethod},#{httpMethod})
+    </insert>
+
+</mapper>

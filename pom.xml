@@ -97,6 +97,11 @@
             <version>1.15</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!--  Spring Boot ≥2.3 才需要额外加  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

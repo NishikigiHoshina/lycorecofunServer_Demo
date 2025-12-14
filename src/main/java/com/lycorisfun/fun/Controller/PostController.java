@@ -1,6 +1,7 @@
 package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Entity.Post;
+import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Service.PostService;
 import com.lycorisfun.fun.VO.PostListVO;
 import jakarta.validation.Valid;
@@ -65,5 +66,15 @@ public class PostController {
         if(postid>0){
             System.out.println("影响"+postService.delById(postid)+"行");
         }
+    }
+
+    @PostMapping("/writepost")
+    public boolean writePost(@Valid @RequestBody Post post ){
+        if(post==null){
+            throw new BusinessException(400,"参数错误，新增失败");
+        }
+        postService.add(post);
+        System.out.println("新增成功");
+        return true;
     }
 }

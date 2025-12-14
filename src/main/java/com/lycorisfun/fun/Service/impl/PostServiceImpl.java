@@ -10,6 +10,7 @@ import com.lycorisfun.fun.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -62,7 +63,19 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new BusinessException(400, "新增失败：帖子内容不能为null");
         }
-
+        if(post.getCreated_at()==null){
+            post.setCreated_at(LocalDateTime.now().toString());
+        }
+        if(post.getTitle()==null){
+            post.setTitle("无标题");
+        }
+        post.setStatus(1);
+        post.setReply_count(0);
+        if(post.getPost_userid()!=0){
+            post.setPost_username(userMapper.findById(post.getPost_userid()).getUserName());
+        }else {
+            post.setPost_username("unknown");
+        }
         int affectedRows = postMapper.add(post);
         if (affectedRows != 1) {
             throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");

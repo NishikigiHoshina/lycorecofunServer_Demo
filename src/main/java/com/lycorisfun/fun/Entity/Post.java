@@ -50,6 +50,16 @@ public class Post {
         this(postid, title, post_userid,"", content, null , "", "", new ArrayList<>(),0,0,0,0,0);// 委托给全参
     }
 
+    public Post(String title,String post_username,String content,String link, String imgurl){
+        this.title = title;
+        this.post_username = post_username;
+        this.content = content;
+        this.link = link;
+        this.imgurl = imgurl;
+        this.created_at = LocalDateTime.now().toString() ;
+
+    }
+
     public Integer getPostid() {
         return postid;
     }
