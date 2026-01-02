@@ -8,7 +8,7 @@ public class User {
     private String email;
     private String password;
     private String gender;
-    private Date registerTime;
+    private String registerTime;
     private String signature;
     private String avaterURL;
     private String PersonalIndexLink;
@@ -17,7 +17,7 @@ public class User {
     public User() {
     }
 
-    public User(Integer userId, String userName, String email, String password, String gender, Date registerTime, String signature, String avaterURL, String PersonalIndexLink, int status){
+    public User(Integer userId, String userName, String email, String password, String gender, String registerTime, String signature, String avaterURL, String PersonalIndexLink, int status){
         this.userId = userId;
         this.userName = userName;
         this.email = email;
@@ -39,6 +39,11 @@ public class User {
 
     public User(String userName, String email, String password) {
         this.userName = userName;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -79,10 +84,10 @@ public class User {
     public void setGender(String gender) {
         this.gender = gender;
     }
-    public Date getRegisterTime() {
+    public String getRegisterTime() {
         return registerTime;
     }
-    public void setRegisterTime(Date registerTime) {
+    public void setRegisterTime(String registerTime) {
         this.registerTime = registerTime;
     }
     public String getSignature() {

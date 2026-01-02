@@ -20,6 +20,8 @@ public interface UserService {
 
     User updateUserInfo(User u);
 
+    public User findByEmail(String email);
 
+    public User Login(String email, String password);
 }
 

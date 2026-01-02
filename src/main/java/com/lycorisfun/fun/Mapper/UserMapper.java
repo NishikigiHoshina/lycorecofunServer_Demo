@@ -22,4 +22,6 @@ public interface UserMapper {
     public int save(User post);
 
     public int updateUserInfo(User u);
+
+    public User findByEmail(String email);
 }

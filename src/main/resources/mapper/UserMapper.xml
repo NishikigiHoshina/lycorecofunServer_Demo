@@ -29,6 +29,12 @@
         WHERE  userId = #{userId};
     </update>
 
+    <select id="findByEmail" parameterType="String" resultType="User">
+        select *
+        from users
+        where email=#{email}
+    </select>
+
     <update id="updateUserInfo" parameterType="User">
         UPDATE users
         <set>

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-//@RestControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -43,9 +43,9 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = BusinessException.class)
-    public Map<String,Object> NumberFormatExceptionHandler(BusinessException e){
+    public Map<String,Object> ServiceExceptionHandler(BusinessException e){
         Map<String,Object> map = new HashMap<>();
         map.put("code",e.getCode());
         map.put("msg","ServiceException-业务类错误-"+e.getMessage());

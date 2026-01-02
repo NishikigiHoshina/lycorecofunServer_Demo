@@ -1,5 +1,6 @@
 package com.lycorisfun.fun.Controller;
 
+import com.lycorisfun.fun.Annotation.RequireToken;
 import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Service.PostService;
@@ -9,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController                 // ★ 1. 让 Spring 接管
 @RequestMapping("/api")        // ★ 2. 统一前缀（可选）
 @CrossOrigin(origins = "*")    // 3. 现在才会生效
@@ -68,13 +72,31 @@ public class PostController {
         }
     }
 
-    @PostMapping("/writepost")
-    public boolean writePost(@Valid @RequestBody Post post ){
+    @PostMapping("/takemessage")
+    public  boolean takemessage(@RequestBody Post post){
         if(post==null){
             throw new BusinessException(400,"参数错误，新增失败");
         }
         postService.add(post);
         System.out.println("新增成功");
         return true;
+    }
+
+    @PostMapping("/writepost")
+    @RequireToken
+    public Map<String, Object> writePost(@Valid @RequestBody Post post ){
+        Map<String, Object> map = new HashMap<>();
+        if(post==null){
+            throw new BusinessException(400,"参数错误，新增失败");
+        }
+        if(post.getPost_userid()>0){
+            postService.add(post);
+            System.out.println("新增成功");
+            map.put("code", 200);
+            map.put("msg","发布成功");
+            return map;
+        }else {
+            throw new BusinessException(400,"参数错误，新增失败");
+        }
     }
 }

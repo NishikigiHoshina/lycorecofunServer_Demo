@@ -1,22 +1,23 @@
 package com.lycorisfun.fun;
 
+import com.lycorisfun.fun.Controller.AuthController;
 import com.lycorisfun.fun.Entity.News;
 import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Entity.User;
 import com.lycorisfun.fun.Entity.function;
 import com.lycorisfun.fun.Mapper.FuncMapper;
-import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.NewsService;
 import com.lycorisfun.fun.Service.PostService;
 import com.lycorisfun.fun.Service.UserService;
+import com.lycorisfun.fun.util.Md5SaltUtil;
 import org.junit.jupiter.api.Test;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 class LycorisfunServerApplicationTests {
@@ -35,6 +36,9 @@ class LycorisfunServerApplicationTests {
 
     @Autowired
     private FuncMapper funcMapper;
+
+    @Autowired
+    private AuthController authController;
 
 
     @Test
@@ -147,5 +151,38 @@ class LycorisfunServerApplicationTests {
         for(function func:funclist){
             System.out.println(func);
         }
+    }
+
+    @Test
+    public void test_verifyPassword(){
+        String password="walnutisgod";
+        String dbpassword= Md5SaltUtil.encrypt(password);
+        System.out.println(dbpassword);
+        if(Md5SaltUtil.verify(password,dbpassword)){
+            System.out.println("密码验证成功");
+        }
+        else {
+            System.out.println("密码验证失败");
+        }
+        //测试账号密码皆为123456，超级管理员密码为walnutisgod
+    }
+
+    @Test
+    public void test_login(){
+        User u=new User();
+        u=userService.Login("test@mail.com","123456");
+        if(u!=null){
+            System.out.println(u);
+        }
+        else {
+            System.out.println("登录失败");
+        }
+    }
+
+    @Test
+    public void test_JWTUtil(){
+        User u=new User("test","test@mail.com","123456");
+        Map<String, Object> map=authController.login(u);
+        System.out.println(map);
     }
 }

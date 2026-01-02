@@ -9,6 +9,8 @@ import com.lycorisfun.fun.util.Md5SaltUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,18 +48,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void add(User userInfo) {
-        //已实现方法
         if (userInfo == null) {
             throw new BusinessException(400, "新增失败：用户信息不能为null");
         }
-
-//  MD5 加盐加密（调用独立工具类，核心步骤）
-        String salt = UUID.randomUUID().toString().replace("-", "").substring(0, 16); // 16位随机盐值
-        // 加密规则：MD5(明文密码 + 盐值)，调用工具类
-        String encryptedPassword = Md5SaltUtil.encrypt(userInfo.getPassword());
-//        String encryptedPassword = MD5Utils.encrypt(userInfo.getPassword()+salt);
-        // 存储格式：salt +"$"+ 密文;
+        //  MD5 加盐加密（调用独立工具类，核心步骤）
+        String encryptedPassword=Md5SaltUtil.encrypt(userInfo.getPassword());
         userInfo.setPassword(encryptedPassword);
+        userInfo.setRegisterTime(LocalDateTime.now().toString());
         int affectedRows = userMapper.insert(userInfo);
         if (affectedRows != 1) {
             throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
@@ -93,7 +90,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(404, "查询失败：ID为" + userName + "的用户不存在");
         }
         // 数据脱敏（密码置空，避免返回给前端）
-//        userInfoList.setPassword(null);
+//      userInfoList.setPassword(null);
 
         return userInfoList;
     }
@@ -109,6 +106,40 @@ public class UserServiceImpl implements UserService {
         int affectedRows = userMapper.save(userInfo);
         if (affectedRows != 1) {
             throw new BusinessException(500, "更新失败：数据修改未生效（影响行数：" + affectedRows + "）");
+        }
+    }
+
+    @Override
+    public User findByEmail(String email){
+        if (email == null) {
+            throw new BusinessException(400,"Bad Request,请求参数错误");
+        }
+        User u=userMapper.findByEmail(email);
+        if (u == null) {
+            throw new BusinessException(404,"数据库中无数据");
+        }
+        return u;
+    }
+
+
+    @Override
+    public User Login(String email, String password) {
+        if (email == null) {
+            throw new BusinessException(400,"Bad Request,邮箱为空");
+        }
+        if (password == null) {
+            throw new BusinessException(400,"Bad Request,密码为空");
+        }
+        User u=userMapper.findByEmail(email);
+        if (u == null) {
+            throw new BusinessException(404,"该用户未注册");
+        }
+        String dbPassword = u.getPassword();
+        boolean allowLogin = Md5SaltUtil.verify(password,dbPassword);
+        if (allowLogin) {
+            return u;
+        }else {
+            throw new BusinessException(400,"用户名或密码错误");
         }
     }
 
