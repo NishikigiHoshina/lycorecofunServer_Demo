@@ -9,7 +9,7 @@
     </select>
 
     <select id="findlist" parameterType="Integer" resultType="Post">
-        select * from posts where status=1 ORDER BY created_at DESC
+        select * from posts where status=1 and title is not null ORDER BY created_at DESC
         LIMIT #{findnum};
     </select>
 
@@ -21,9 +21,15 @@
         select * from posts where post_userid=#{post_userid}
     </select>
 
+    <select id="findByParentid" parameterType="Integer" resultType="Post">
+        select *
+        from posts
+        where parent_id=#{parent_id};
+    </select>
+
     <insert id="add" parameterType="Post">
-        insert into posts(postid,title,post_userid,content,created_at,like_count)
-        values (#{postid},#{title},#{post_userid},#{content},#{created_at},#{like_count})
+        insert into posts(postid,title,post_userid,content,created_at,like_count,link,imgurl,parent_id,root_id,status,reply_count,post_username)
+        values (#{postid},#{title},#{post_userid},#{content},#{created_at},#{like_count},#{link},#{imgurl},#{parent_id},#{root_id},#{status},#{reply_count},#{post_username})
     </insert>
 
     <select id="findByTitle" parameterType="String" resultType="Post">

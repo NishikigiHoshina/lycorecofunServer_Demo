@@ -33,12 +33,15 @@ public class PostController {
 
     @PostMapping("/postlist")
     public List<Post> postList(){
-        List<Post> posts=postService.findlist(10);
+        List<Post> posts=postService.findlist(50);
+        for (Post post : posts) {
+            post.setContent("");
+        }
         return posts;
     }
 
     @PostMapping("/getPostByid")
-    public Post getPostById(@RequestBody Integer postid){
+    public Post getPostById(@RequestParam("postid") Integer postid){
         Post post=postService.findById(postid);
         return post;
     }
@@ -58,6 +61,7 @@ public class PostController {
     }
 
     @PostMapping("/updatePostinfo")
+    @RequireToken
     public void updatePostinfo(@Valid @RequestBody Post post ){
         System.out.println(post);
         if(post.getPostid()>0){
@@ -65,7 +69,9 @@ public class PostController {
         }
     }
 
+
     @PostMapping("/deletePost")
+    @RequireToken
     public void deletePost(@RequestParam Integer postid){
         if(postid>0){
             System.out.println("影响"+postService.delById(postid)+"行");
@@ -77,7 +83,7 @@ public class PostController {
         if(post==null){
             throw new BusinessException(400,"参数错误，新增失败");
         }
-        postService.add(post);
+        postService.addmessage(post);
         System.out.println("新增成功");
         return true;
     }
@@ -98,5 +104,34 @@ public class PostController {
         }else {
             throw new BusinessException(400,"参数错误，新增失败");
         }
+    }
+
+    @PostMapping("/writecomment")
+    @RequireToken
+    public Map<String,Object> writeContent(@Valid @RequestBody Post post ){
+        Map<String, Object> map = new HashMap<>();
+        if(post==null){
+            throw new BusinessException(400,"参数错误，新增失败");
+        }
+        postService.addcontent(post);
+        System.out.println("新增成功");
+        map.put("code", 200);
+        map.put("msg","发布成功");
+        return map;
+    }
+
+    @PostMapping("/getReply")
+    public Map<String,Object> getReply(@RequestParam Integer parent_id){
+        List<Post>list=postService.findContentPointaPost(parent_id);
+        Map<String, Object> map = new HashMap<>();
+        if(list!=null && list.size()>0){
+            map.put("code", 200);
+            map.put("msg","查询成功");
+            map.put("replylist",list);
+        }else {
+            map.put("code", 404);
+            map.put("msg","查询失败");
+        }
+        return map;
     }
 }

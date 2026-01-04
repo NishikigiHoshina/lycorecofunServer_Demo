@@ -10,13 +10,21 @@ public interface PostService {
 
     public int delById(Integer id);
 
-    public void add(Post userInfo);
+    public void add(Post postInfo);
+
+    public void addmessage(Post postInfo);
+
+    public void addcontent(Post postInfo);
 
     public Post findById(Integer id);
 
     public List<Post> findByUser(String username);
 
     public List<Post> findByTitle(String title);
+
+    public List<Post> findContentPointaPost(Integer id);
+
+    public List<Post> findReplyPointaPost(Integer id);
 
 //    public List<Post> findByUserid(Integer userid);
 

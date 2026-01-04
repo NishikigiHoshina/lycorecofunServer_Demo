@@ -13,4 +13,7 @@ public interface FuncService {
     public int funcStatus(String funcname);
     public List<String> getIndexIMG();
     public int addIndexIMG(String imglink);
+    public List<function> getIndexImg();
+    public function getFuncbyID(int id);
+    public int deleteFuncbyID(function func);
 }

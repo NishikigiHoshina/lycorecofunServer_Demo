@@ -24,17 +24,35 @@
         </set>
         WHERE function_name = #{function_name}
     </update>
+
+    <update id="deleteImg" parameterType="function">
+        UPDATE functionform
+        SET function_status = #{function_status}
+        WHERE id = #{id}
+    </update>
     
     <select id="findfunc" parameterType="String" resultType="function">
         select * 
         from functionform 
         where function_name=#{function_name}
     </select>
+
+    <select id="findIndexImg" resultType="function">
+        select *
+        from functionform
+        where function_name='IndexIMGlink' and function_status=1
+    </select>
     
     <select id="funcStatus" parameterType="String" resultType="function">
         select *
         from functionform
         where  function_name=#{function_name}
+    </select>
+
+    <select id="findfuncbyid" parameterType="int" resultType="function">
+        select *
+        from functionform
+        where  id=#{id}
     </select>
 
     <select id="findlink" resultType="function">

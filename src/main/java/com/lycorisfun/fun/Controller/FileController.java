@@ -1,5 +1,6 @@
 package com.lycorisfun.fun.Controller;
 
+import com.lycorisfun.fun.Annotation.RequireToken;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")    // 3. 现在才会生效
 public class FileController {
     @PostMapping("/uploadFile")
+    @RequireToken
     public Map<String, Object> uploadFile(MultipartFile file) throws IOException {
 
         // 图片原来的名字

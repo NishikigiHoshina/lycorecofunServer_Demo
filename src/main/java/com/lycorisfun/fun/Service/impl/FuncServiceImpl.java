@@ -79,4 +79,38 @@ public class FuncServiceImpl implements FuncService {
         System.out.println("插入成功，影响:"+row+"行");
         return row;
     }
+
+    @Override
+    public function getFuncbyID(int id){
+        if(id<0){
+            throw new BusinessException(400,"Bad Request");
+        }
+        function func=funcMapper.findfuncbyid(id);
+        if(func==null){
+            throw new BusinessException(404,"Not Found");
+        }
+        return func;
+    }
+
+    @Override
+    public List<function> getIndexImg(){
+        List<function> list=funcMapper.findIndexImg();
+        if(list!=null){
+            return list;
+        }else {
+            System.out.println("查询不到数据");
+            return null;
+        }
+    }
+
+    @Override
+    public int deleteFuncbyID(function func){
+        if(func!=null){
+            int row=funcMapper.deleteImg(func);
+            System.out.println("修改成功，影响:"+row+"行");
+            return row;
+        }
+        else
+            throw new BusinessException(500,"服务器内部错误");
+    }
 }

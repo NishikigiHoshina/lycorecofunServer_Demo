@@ -21,6 +21,9 @@ public interface PostMapper {
     public Post findByUser(int userid);
     public List<Post> findByUserid(int userid);
 
+    public List<Post> findByParentid(int parentid);
+    public List<Post> findByRootid(int rootid);
+
     public int updatePostInfo(Post post);
 
 }

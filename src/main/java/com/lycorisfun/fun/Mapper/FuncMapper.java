@@ -12,5 +12,8 @@ public interface FuncMapper {
     public int changeStatus(function func);
     public function funcStatus(String funcname);
     public function findfunc(String funcname);
+    public List<function> findIndexImg();
+    public function findfuncbyid(int id);
     public List<function> findlink();
+    public int deleteImg(function func);
 }

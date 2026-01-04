@@ -36,7 +36,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> findlist(Integer findnum){
         if (findnum==null){
-            findnum=10;
+            findnum=50;
         }
         List<Post> postList = postMapper.findlist(findnum);
         if (postList == null || postList.size()==0) {
@@ -77,7 +77,37 @@ public class PostServiceImpl implements PostService {
         if (affectedRows != 1) {
             throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
         }
+        System.out.println("新增成功，影响："+affectedRows+"行");
+    }
 
+    @Override
+    public void addmessage(Post post) {
+        if (post == null) {
+            throw new BusinessException(400, "新增失败：消息内容不能为null");
+        }
+        post.setCreated_at(LocalDateTime.now().toString());
+        post.setStatus(3);
+        int affectedRows = postMapper.add(post);
+        if (affectedRows != 1) {
+            throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
+        }
+    }
+
+    @Override
+    public void addcontent(Post post) {
+        if (post == null) {
+            throw new BusinessException(400, "新增失败：参数缺失");
+        }
+        post.setCreated_at(LocalDateTime.now().toString());
+        post.setTitle(null);
+        post.setStatus(1);
+        post.setReply_count(0);
+        post.setLike_count(0);
+        int affectedRows = postMapper.add(post);
+        if (affectedRows != 1) {
+            throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
+        }
+        System.out.println("新增成功，影响："+affectedRows+"行");
     }
 
 
@@ -111,6 +141,23 @@ public class PostServiceImpl implements PostService {
             postList.addAll(postMapper.findByUserid(id));
         }
         return postList;
+    }
+
+    @Override
+    public List<Post> findContentPointaPost(Integer id){
+        List<Post> replylist=postMapper.findByParentid(id);
+        if (replylist==null || replylist.size()==0){
+            //throw new BusinessException(404,"查询无结果");
+            System.out.println("404-查询无结果");
+            return null;
+        }
+        return replylist;
+    }
+
+    @Override
+    public List<Post> findReplyPointaPost(Integer id){
+
+        return new ArrayList<>();
     }
 
     @Override
