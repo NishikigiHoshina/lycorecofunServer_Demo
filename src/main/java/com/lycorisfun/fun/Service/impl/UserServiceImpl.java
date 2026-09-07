@@ -178,4 +178,17 @@ public class UserServiceImpl implements UserService {
         System.out.println("修改成功，影响:"+n+"行");
         return u;
     }
+
+    @Override
+    public User findProfileById(Integer id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(400, "查询失败：用户ID无效");
+        }
+        // SQL 层已排除 password，此处无需再脱敏
+        User u = userMapper.findProfileById(id);
+        if (u == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        return u;
+    }
 }

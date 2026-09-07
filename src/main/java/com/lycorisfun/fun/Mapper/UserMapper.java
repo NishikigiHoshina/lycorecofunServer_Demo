@@ -24,4 +24,7 @@ public interface UserMapper {
     public int updateUserInfo(User u);
 
     public User findByEmail(String email);
+
+    /* 个人中心：显式列出非敏感列，password 不查询 */
+    public User findProfileById(int id);
 }

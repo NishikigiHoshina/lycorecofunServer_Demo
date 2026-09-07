@@ -52,4 +52,11 @@
         WHERE userId = #{userId}
     </update>
 
+    <!-- 个人中心：显式列出非敏感列，password 不查询 -->
+    <select id="findProfileById" parameterType="Integer" resultType="User">
+        select userId, userName, email, gender, registerTime, signature, avaterURL, PersonalIndexLink, status
+        from users
+        where userId = #{userId}
+    </select>
+
 </mapper>

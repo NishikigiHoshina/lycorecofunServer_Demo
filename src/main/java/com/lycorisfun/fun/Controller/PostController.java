@@ -40,6 +40,27 @@ public class PostController {
         return posts;
     }
 
+    // 分页查询帖子列表（与 /postlist 同口径：status=1 且 title 非空）
+    // 请求：POST /api/postlistPage?page=1&size=10
+    // 响应：{ code, msg, list, total, page, size }
+    @PostMapping("/postlistPage")
+    public Map<String, Object> postlistPage(@RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        List<Post> posts = postService.findPageList(page, size);
+        for (Post post : posts) {
+            post.setContent("");          // 列表视图不返回正文，与 /postlist 保持一致
+        }
+        int total = postService.countPostList();
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 200);
+        map.put("msg", "success");
+        map.put("list", posts);
+        map.put("total", total);
+        map.put("page", page);
+        map.put("size", size);
+        return map;
+    }
+
     @PostMapping("/getPostByid")
     public Post getPostById(@RequestParam("postid") Integer postid){
         Post post=postService.findById(postid);

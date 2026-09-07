@@ -35,7 +35,7 @@ public class TokenInterceptor implements HandlerInterceptor {
             try {
                 DecodedJWT jwt = JWTUtil.verifyToken(token);   // 复用你的工具类
                 // 把 userId 放到 request 属性，后面业务直接拿
-                request.setAttribute("userId", jwt.getClaim("userId").asString());
+                request.setAttribute("userId", jwt.getClaim("id").asString());
             } catch (Exception e) {          // 签名/过期都算失败
                 return refuse(response, "Invalid Token");
             }
@@ -43,7 +43,7 @@ public class TokenInterceptor implements HandlerInterceptor {
             if (token != null) {              // 有 token 就解析，没有就放过
                 try {
                     DecodedJWT jwt = JWTUtil.verifyToken(token);
-                    request.setAttribute("userId", jwt.getClaim("userId").asString());
+                    request.setAttribute("userId", jwt.getClaim("id").asString());
                 } catch (Exception ignore) { /* 解析失败当游客 */ }
             }
         }

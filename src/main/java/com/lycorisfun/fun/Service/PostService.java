@@ -30,5 +30,9 @@ public interface PostService {
 
     public Post updatePostInfo(Post postInfo);
 
+    /* ===== 分页查询 ===== */
+    public List<Post> findPageList(int page, int size);
+    public int countPostList();
+
 }
 

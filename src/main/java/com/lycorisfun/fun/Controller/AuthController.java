@@ -22,8 +22,14 @@ public class AuthController {
         Map<String, Object> map = new HashMap<>();
 
         User u = userService.Login(user.getEmail(), user.getPassword());
+
         if (u != null) {
             Map<String, String> payload = new HashMap<>();
+            if(u.getStatus()==2){
+                map.put("code", 403);
+                map.put("msg","账户停用");
+                return map;
+            }
             payload.put("id", u.getUserId().toString());
             payload.put("username", u.getUserName());
             String token = JWTUtil.createToken(payload);

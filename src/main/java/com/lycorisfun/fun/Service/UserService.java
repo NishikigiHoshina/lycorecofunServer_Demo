@@ -23,5 +23,8 @@ public interface UserService {
     public User findByEmail(String email);
 
     public User Login(String email, String password);
+
+    /* 个人中心：按 ID 查询非敏感字段（不含 password） */
+    public User findProfileById(Integer id);
 }
 

@@ -68,4 +68,18 @@
         WHERE postid = #{postid}
     </update>
 
+    <!-- 分页查询：与 findlist 同口径（status=1 且 title 非空） -->
+    <select id="findPageList" resultType="Post">
+        select * from posts
+        where status = 1 and title is not null
+        order by created_at desc
+        limit #{offset}, #{size}
+    </select>
+
+    <!-- 分页查询：总数 -->
+    <select id="countPostList" resultType="int">
+        select count(*) from posts
+        where status = 1 and title is not null
+    </select>
+
 </mapper>

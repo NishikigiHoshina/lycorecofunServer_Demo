@@ -103,6 +103,13 @@ public class PostServiceImpl implements PostService {
         post.setStatus(1);
         post.setReply_count(0);
         post.setLike_count(0);
+        // 回填作者昵称（与 add() 一致），userid 无效则留空，不阻断回复
+        if (post.getPost_userid() > 0) {
+            User u = userMapper.findById(post.getPost_userid());
+            if (u != null) {
+                post.setPost_username(u.getUserName());
+            }
+        }
         int affectedRows = postMapper.add(post);
         if (affectedRows != 1) {
             throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
@@ -134,7 +141,7 @@ public class PostServiceImpl implements PostService {
         for (User user : userInfoList) {
             userid.add(user.getUserId());
         }
-        if (userid.size()==0){
+        if (userid.isEmpty()){
             throw new BusinessException(400,"无结果");
         }
         for (Integer id : userid){
@@ -232,5 +239,23 @@ public class PostServiceImpl implements PostService {
         int n=postMapper.updatePostInfo(p);
         System.out.println("修改成功，影响:"+n+"行");
         return p;
+    }
+
+    @Override
+    public List<Post> findPageList(int page, int size) {
+        if (page < 1) page = 1;
+        if (size < 1) size = 10;
+        int offset = (page - 1) * size;
+        List<Post> postList = postMapper.findPageList(offset, size);
+        // 空页不算异常（翻到末页常见），返回空列表而非抛 404
+        if (postList == null) {
+            return new ArrayList<>();
+        }
+        return postList;
+    }
+
+    @Override
+    public int countPostList() {
+        return postMapper.countPostList();
     }
 }

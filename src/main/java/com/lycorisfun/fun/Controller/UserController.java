@@ -67,6 +67,24 @@ public class UserController {
         return users;
     }
 
+    // 个人中心：返回当前登录用户信息（password 不在查询列中）
+    // 需登录：@RequireToken；userId 由 TokenInterceptor 从 JWT 解析后放入 request 属性
+    @PostMapping("/getMyProfile")
+    @com.lycorisfun.fun.Annotation.RequireToken
+    public Map<String, Object> getMyProfile(HttpServletRequest request) {
+        String userIdStr = (String) request.getAttribute("userId");
+        if (userIdStr == null || userIdStr.isEmpty()) {
+            throw new BusinessException(401, "未登录");
+        }
+        int userId = Integer.parseInt(userIdStr);
+        User u = userService.findProfileById(userId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 200);
+        map.put("msg", "success");
+        map.put("data", u);
+        return map;
+    }
+
 
 
 }

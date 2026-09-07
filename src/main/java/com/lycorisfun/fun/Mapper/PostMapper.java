@@ -2,6 +2,7 @@ package com.lycorisfun.fun.Mapper;
 
 import com.lycorisfun.fun.Entity.Post;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,5 +26,9 @@ public interface PostMapper {
     public List<Post> findByRootid(int rootid);
 
     public int updatePostInfo(Post post);
+
+    /* ===== 分页查询：status=1 且 title 非空，与 findlist 同口径 ===== */
+    public List<Post> findPageList(@Param("offset") int offset, @Param("size") int size);
+    public int countPostList();
 
 }
