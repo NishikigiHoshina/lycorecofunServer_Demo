@@ -5,6 +5,9 @@ import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Mapper.FuncMapper;
 import com.lycorisfun.fun.Service.FuncService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,6 +40,10 @@ public class FuncServiceImpl implements FuncService {
             throw new BusinessException(500,"服务器内部错误");
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "funcStatus", key = "#func.function_name"),
+            @CacheEvict(cacheNames = "indexImg", allEntries = true)
+    })
     @Override
     public int changeStatus(function func){
         if(func!=null){
@@ -48,6 +55,7 @@ public class FuncServiceImpl implements FuncService {
             throw new BusinessException(500,"服务器内部错误");
     }
 
+    @Cacheable(cacheNames = "funcStatus", key = "#funcname")
     @Override
     public  int funcStatus(String funcname){
         if(funcname==null){
@@ -69,6 +77,7 @@ public class FuncServiceImpl implements FuncService {
         return linklist;
     }
 
+    @CacheEvict(cacheNames = "indexImg", allEntries = true)
     @Override
     public int addIndexIMG(String img){
         if(img==null || img.isEmpty()){
@@ -92,17 +101,18 @@ public class FuncServiceImpl implements FuncService {
         return func;
     }
 
+    @Cacheable(cacheNames = "indexImg")
     @Override
     public List<function> getIndexImg(){
         List<function> list=funcMapper.findIndexImg();
-        if(list!=null){
+        if (list != null) {
             return list;
-        }else {
-            System.out.println("查询不到数据");
-            return null;
         }
+        System.out.println("查询不到数据");
+        return new ArrayList<>();   // 空结果返回空列表（可缓存），避免 null 写入缓存抛异常
     }
 
+    @CacheEvict(cacheNames = "indexImg", allEntries = true)
     @Override
     public int deleteFuncbyID(function func){
         if(func!=null){

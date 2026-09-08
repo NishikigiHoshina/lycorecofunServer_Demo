@@ -8,6 +8,9 @@ import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -45,6 +48,10 @@ public class PostServiceImpl implements PostService {
         return postList;
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "postDetail", key = "#id"),
+            @CacheEvict(cacheNames = "postPage", allEntries = true)
+    })
     @Override
     public int delById(Integer id) {
         if (id == null || id <= 0) {
@@ -58,6 +65,7 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    @CacheEvict(cacheNames = "postPage", allEntries = true)
     @Override
     public void add(Post post) {
         if (post == null) {
@@ -93,6 +101,8 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    // 评论/回复写入：失效楼中楼缓存
+    @CacheEvict(cacheNames = "replyList", allEntries = true)
     @Override
     public void addcontent(Post post) {
         if (post == null) {
@@ -118,6 +128,7 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    @Cacheable(cacheNames = "postDetail", key = "#id")
     @Override
     public Post findById(Integer id) {
         if (id == null || id <= 0) {
@@ -150,13 +161,13 @@ public class PostServiceImpl implements PostService {
         return postList;
     }
 
+    @Cacheable(cacheNames = "replyList", key = "#id")
     @Override
     public List<Post> findContentPointaPost(Integer id){
         List<Post> replylist=postMapper.findByParentid(id);
         if (replylist==null || replylist.size()==0){
-            //throw new BusinessException(404,"查询无结果");
             System.out.println("404-查询无结果");
-            return null;
+            return new ArrayList<>();   // 空结果返回空列表（可缓存），避免 null 写入缓存抛异常
         }
         return replylist;
     }
@@ -192,6 +203,10 @@ public class PostServiceImpl implements PostService {
 //        }
 //    }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "postDetail", key = "#postInfo.postid"),
+            @CacheEvict(cacheNames = "postPage", allEntries = true)
+    })
     @Override
     public Post updatePostInfo(Post postInfo){
         if (postInfo == null) {
@@ -241,6 +256,7 @@ public class PostServiceImpl implements PostService {
         return p;
     }
 
+    @Cacheable(cacheNames = "postPage")
     @Override
     public List<Post> findPageList(int page, int size) {
         if (page < 1) page = 1;
@@ -251,9 +267,14 @@ public class PostServiceImpl implements PostService {
         if (postList == null) {
             return new ArrayList<>();
         }
+        // 列表视图不需要正文：在进入缓存前就清掉，避免缓存对象被 Controller 改写
+        for (Post post : postList) {
+            post.setContent("");
+        }
         return postList;
     }
 
+    @Cacheable(cacheNames = "postPage")
     @Override
     public int countPostList() {
         return postMapper.countPostList();

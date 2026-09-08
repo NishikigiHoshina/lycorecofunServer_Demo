@@ -6,6 +6,7 @@ import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Mapper.NewsMapper;
 import com.lycorisfun.fun.Service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class NewsServiceImpl implements NewsService {
         return List.of();
     }
 
+    @Cacheable(cacheNames = "newsAll")
     @Override
     public List<News> findAllNews(){
         List<News> newsList = newsMapper.findAllNews();
@@ -54,6 +56,7 @@ public class NewsServiceImpl implements NewsService {
         return newsList;
     }
 
+    @Cacheable(cacheNames = "newsLatest", key = "#num")
     @Override
     public List<News> findLatestNews(Integer num){
         Integer findnum=(num!=null)?num:6;
@@ -64,6 +67,7 @@ public class NewsServiceImpl implements NewsService {
         return newsList;
     }
 
+    @Cacheable(cacheNames = "announcement")
     @Override
     public  News findAnnouncement(){
         News Announcement=new News();
