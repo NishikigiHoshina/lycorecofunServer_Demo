@@ -1,7 +1,7 @@
 # lycorisfunServer — 后端服务
 
 本站点**后端 REST 服务**，为前端 `posts` 提供接口。Spring Boot 3 + MyBatis + MySQL。
-登录态采用 **HttpOnly Cookie** 会话（方案 B）承载 JWT。
+登录态采用 **HttpOnly Cookie** 会话承载 JWT。
 
 > 前端见同目录 `posts/`；详细结构见工作区根目录 `后端项目结构说明(lycorisfunServer).md`。
 
