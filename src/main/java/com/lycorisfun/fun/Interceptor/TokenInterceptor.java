@@ -3,6 +3,7 @@ package com.lycorisfun.fun.Interceptor;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lycorisfun.fun.Annotation.RequireToken;
+import com.lycorisfun.fun.Controller.AuthController;
 import com.lycorisfun.fun.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,10 +24,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 
         boolean needToken = hm.getMethod().isAnnotationPresent(RequireToken.class);
 
-        String header = request.getHeader("Authorization");
-        String token  = (header != null && header.startsWith("Bearer "))
-                ? header.substring(7)
-                : null;
+        String token = resolveToken(request);
 
         if (needToken) {                     // ===== 必须登录 =====
             if (token == null) {
@@ -48,6 +46,23 @@ public class TokenInterceptor implements HandlerInterceptor {
             }
         }
         return true;
+    }
+
+    /* 取 token：HttpOnly Cookie 优先，Authorization: Bearer 兜底（便于 curl 调试） */
+    private String resolveToken(HttpServletRequest req) {
+        if (req.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie c : req.getCookies()) {
+                if (AuthController.TOKEN_COOKIE.equals(c.getName())
+                        && c.getValue() != null && !c.getValue().isEmpty()) {
+                    return c.getValue();
+                }
+            }
+        }
+        String header = req.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
     }
 
     /* 统一返回 401 */

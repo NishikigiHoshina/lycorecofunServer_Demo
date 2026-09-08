@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController                 // ★ 1. 让 Spring 接管
 @RequestMapping("/api")        // ★ 2. 统一前缀（可选）
-@CrossOrigin(origins = "*")    // 3. 现在才会生效
 
 public class PostController {
 

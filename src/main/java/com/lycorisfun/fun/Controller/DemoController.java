@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@CrossOrigin
 public class DemoController {
     @GetMapping("/getStatu200")
     public Map<String,Object> getStatu200(@RequestParam(value = "num",defaultValue = "1",required = false) Integer num){
