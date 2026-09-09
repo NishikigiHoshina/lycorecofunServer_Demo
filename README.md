@@ -31,7 +31,7 @@
 ./mvnw clean package -DskipTests   # 打包
 ```
 - 端口 `12808`，上下文 `/lycorisfunServer`；接口前缀 `http://localhost:12808/lycorisfunServer/api/**`。
-- 数据库账号口令见 `src/main/resources/application.properties`；`mybatis.type-aliases-package` 须为 **`com.lycorisfun.fun.Entity`**（大写 E）。
+- 数据库账号口令见 `src/main/resources/application.properties`（当前为占位 `XXX`，运行前按本地库填回）；`mybatis.type-aliases-package` 须为 **`com.lycorisfun.fun.Entity`**（大写 E）。
 
 ---
 
@@ -45,12 +45,12 @@ lycorisfunServer/
         ├── LycorisfunServerApplication.java   # @SpringBootApplication + @MapperScan
         ├── Annotation/RequireToken.java       # 方法级鉴权注解
         ├── Aop/LogRecordAspect.java           # Service 日志切面（落库未启用）
-        ├── config/  WebConfig（拦截器+CORS+静态资源） · CacheConfig（Caffeine）
+        ├── config/  WebConfig（拦截器+CORS+上传静态映射） · CacheConfig（Caffeine） · UploadProperties（上传配置）
         ├── Interceptor/TokenInterceptor.java  # token 解析 + static currentUserId()
-        ├── Controller/   Auth / User / Post / Message / File / Setting
+        ├── Controller/   Auth / User / Post / Message / Setting
         ├── Service + impl/ · Mapper/ · Entity/
         ├── Exception/  BusinessException + GlobalExceptionHandler
-        └── util/  JWTUtil / Md5SaltUtil / TextValidator
+        └── util/  JWTUtil / Md5SaltUtil / TextValidator / AuthUtil
 ```
 
 ---
@@ -67,9 +67,18 @@ lycorisfunServer/
 | 作者身份 | `/writepost` `/writecomment` 作者 `post_userid` 由 token 推导并覆盖 body |
 | 帖子改/删 | `/updatePostinfo` `/deletePost`：属主或管理员，否则 403 |
 | 新闻管理 | `/addnews` `/updatenews` `/deletenews`：仅管理员 |
+| 系统开关 / 站内图（含上传） | `updateStatus` / `addIndexIMG` / `deleteIndexIMG`：仅管理员 |
 | 留言 | `/takemessage` 匿名可写（刻意设计） |
 
 - **字符约束**：库为 utf8mb3（仅 BMP），emoji 等 4 字节字符无法入库；`util/TextValidator` 在新闻/评论/留言/注册用户名入库前拦截并给友好 400。Post 富文本正文未接该校验（审计见前端结构文档）。
+
+---
+
+## 文件上传（配置化）
+
+- 唯一上传入口：后台「站内管理」宣传图 `POST /addIndexIMG`（**仅管理员**）。类型 `index-img`：jpg/jpeg/png/gif/webp、**≤5MB**；后端做扩展名白名单 + 图片魔数校验 + uuid 命名 + 路径穿越防护。
+- 根目录与每类型规则集中在 `application.properties` 的 `lycorisfun.upload.*`（root 默认 `${user.home}/lycorisfun-upload`；`max-size` 支持 `5MB` 等 DataSize 单位）。新增类型 = 追加 `types[n]`，静态映射与校验自动跟随。
+- `WebConfig` 按类型注册静态目录并加 `nosniff`；前端 `SiteControl` 与后端同口径预检（≤5MB、jpg/jpeg/png/gif/webp）。
 
 ---
 
@@ -99,8 +108,7 @@ lycorisfunServer/
 | 用户查询 | `/searchUser`、`/searchByUsername`、`/searchByuserid`、`/userlist` | 开 |
 | 新闻 / 公告 | `newslist`、`newslistAll`、`getAnnouncement` | 开 |
 | 新闻管理 | `addnews`、`updatenews`、`deletenews` | 仅管理员 |
-| 功能开关 / 站内图 | `getfuncstatus`、`updateStatus`、`getIndexIMG`、`addIndexIMG`、`deleteIndexIMG` | 写需登录 |
-| 文件上传 | `POST /uploadFile` | 需登录 |
+| 功能开关 / 站内图（含图片上传） | `getfuncstatus`、`updateStatus`、`getIndexIMG`、`addIndexIMG`、`deleteIndexIMG` | 读开放，写仅管理员 |
 
 ---
 

@@ -2,11 +2,9 @@ package com.lycorisfun.fun.Controller;
 
 import com.lycorisfun.fun.Annotation.RequireToken;
 import com.lycorisfun.fun.Entity.News;
-import com.lycorisfun.fun.Entity.User;
-import com.lycorisfun.fun.Exception.BusinessException;
-import com.lycorisfun.fun.Interceptor.TokenInterceptor;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.NewsService;
+import com.lycorisfun.fun.util.AuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,16 +48,9 @@ public class MessageController {
 
     /* ===== 后台新闻管理（仅管理员 status==3） ===== */
 
-    // 校验当前登录用户为管理员：DB 判定，不信任前端提交的 status
+    // 校验当前登录用户为管理员：DB 判定，统一走 AuthUtil
     private void requireNewsAdmin(HttpServletRequest request) {
-        Integer uid = TokenInterceptor.currentUserId(request);
-        if (uid == null) {
-            throw new BusinessException(401, "未登录");
-        }
-        User u = userMapper.findById(uid);          // uid 已判空，可安全拆箱
-        if (u == null || u.getStatus() != 3) {
-            throw new BusinessException(403, "无权操作：仅管理员可管理新闻");
-        }
+        AuthUtil.requireAdmin(request, userMapper);
     }
 
     // 新建新闻（后台"新闻管理"页弹窗提交入口）
