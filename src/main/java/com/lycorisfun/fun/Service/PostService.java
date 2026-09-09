@@ -8,7 +8,7 @@ public interface PostService {
     public List<Post> findAll();
     public List<Post> findlist(Integer findnum);
 
-    public int delById(Integer id);
+    public int delById(Integer id, Integer callerId);
 
     public void add(Post postInfo);
 
@@ -28,7 +28,7 @@ public interface PostService {
 
 //    public List<Post> findByUserid(Integer userid);
 
-    public Post updatePostInfo(Post postInfo);
+    public Post updatePostInfo(Post postInfo, Integer callerId);
 
     /* ===== 分页查询 ===== */
     public List<Post> findPageList(int page, int size);

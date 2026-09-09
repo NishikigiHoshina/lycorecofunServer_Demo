@@ -6,6 +6,7 @@ import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.UserService;
 import com.lycorisfun.fun.util.Md5SaltUtil;
+import com.lycorisfun.fun.util.TextValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,10 @@ public class UserServiceImpl implements UserService {
         if (userList == null || userList.isEmpty()) {
             // 抛业务异常，状态码 404
             throw new BusinessException(404, "查询失败：未找到任何用户数据");
+        }
+        // 数据脱敏：password 置空，避免列表接口外泄加盐密文
+        for (User u : userList) {
+            u.setPassword(null);
         }
         return userList;
     }
@@ -51,6 +56,8 @@ public class UserServiceImpl implements UserService {
         if (userInfo == null) {
             throw new BusinessException(400, "新增失败：用户信息不能为null");
         }
+        // 入库前字符校验（库 utf8mb3，拦截 emoji 等 4 字节字符）
+        TextValidator.requireStorable(userInfo.getUserName(), "用户名");
         //  MD5 加盐加密（调用独立工具类，核心步骤）
         String encryptedPassword=Md5SaltUtil.encrypt(userInfo.getPassword());
         userInfo.setPassword(encryptedPassword);
@@ -90,7 +97,9 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(404, "查询失败：ID为" + userName + "的用户不存在");
         }
         // 数据脱敏（密码置空，避免返回给前端）
-//      userInfoList.setPassword(null);
+        for (User u : userInfoList) {
+            u.setPassword(null);
+        }
 
         return userInfoList;
     }

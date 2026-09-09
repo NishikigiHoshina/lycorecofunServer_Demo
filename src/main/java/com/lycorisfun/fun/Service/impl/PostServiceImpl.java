@@ -7,6 +7,7 @@ import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.PostService;
+import com.lycorisfun.fun.util.TextValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,10 +54,16 @@ public class PostServiceImpl implements PostService {
             @CacheEvict(cacheNames = "postPage", allEntries = true)
     })
     @Override
-    public int delById(Integer id) {
+    public int delById(Integer id, Integer callerId) {
         if (id == null || id <= 0) {
             throw new BusinessException(400, "删除失败：帖子ID无效（不能为null或负数或0）");
         }
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        // 属主/管理员校验：findById 缺行抛 404；同一 Impl 内自调用绕过缓存代理=一次直读
+        Post existing = findById(id);
+        checkCanModify(existing.getPost_userid(), callerId);
         int affectedRows = postMapper.delbyid(id);
         if (affectedRows == 0) {
             throw new BusinessException(404, "删除失败：ID为" + id + "的帖子不存在");
@@ -93,6 +100,10 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new BusinessException(400, "新增失败：消息内容不能为null");
         }
+        // 入库前字符校验（库 utf8mb3，拦截 emoji 等 4 字节字符）
+        TextValidator.requireStorable(post.getContent(), "留言内容");
+        TextValidator.requireStorable(post.getPost_username(), "昵称");
+        TextValidator.requireStorable(post.getLink(), "个人主页链接");
         post.setCreated_at(LocalDateTime.now().toString());
         post.setStatus(3);
         int affectedRows = postMapper.add(post);
@@ -108,6 +119,8 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new BusinessException(400, "新增失败：参数缺失");
         }
+        // 入库前字符校验（库 utf8mb3，拦截 emoji 等 4 字节字符）
+        TextValidator.requireStorable(post.getContent(), "评论内容");
         post.setCreated_at(LocalDateTime.now().toString());
         post.setTitle(null);
         post.setStatus(1);
@@ -208,17 +221,29 @@ public class PostServiceImpl implements PostService {
             @CacheEvict(cacheNames = "postPage", allEntries = true)
     })
     @Override
-    public Post updatePostInfo(Post postInfo){
+    public Post updatePostInfo(Post postInfo, Integer callerId){
         if (postInfo == null) {
-            throw new BusinessException(400,"修改失败，未查找到用户");
+            throw new BusinessException(400,"修改失败：参数为空");
+        }
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        if (postInfo.getPostid() == null || postInfo.getPostid() <= 0) {
+            throw new BusinessException(400,"修改失败：帖子ID无效");
+        }
+        // 属主/管理员校验：findById 缺行抛 404；同一 Impl 内自调用绕过缓存代理=一次直读
+        Post existing = findById(postInfo.getPostid());
+        boolean callerIsAdmin = isAdmin(callerId);
+        if (existing.getPost_userid() != callerId && !callerIsAdmin) {
+            throw new BusinessException(403, "无权操作：非作者或非管理员");
         }
         Post p=new Post();
-        if(postInfo.getPostid()==0){
-            throw new BusinessException(400,"修改失败，未查找到用户");
-        }
-        p.setPostid(postInfo.getPostid());//通过id匹配用户对象
-        if(postInfo.getPost_userid()!=0){
+        p.setPostid(existing.getPostid());//通过id匹配帖子对象
+        // 作者列守卫：仅管理员且显式提供了新作者(>0)才允许改作者；否则一律保留现有作者，杜绝伪造或写成 0
+        if (callerIsAdmin && postInfo.getPost_userid() != 0) {
             p.setPost_userid(postInfo.getPost_userid());
+        } else {
+            p.setPost_userid(existing.getPost_userid());
         }
         if(postInfo.getPost_username()!=null){
             p.setPost_username(postInfo.getPost_username());
@@ -278,5 +303,26 @@ public class PostServiceImpl implements PostService {
     @Override
     public int countPostList() {
         return postMapper.countPostList();
+    }
+
+    /* ===== 写操作鉴权（属主 或 管理员） ===== */
+
+    /* 是否管理员：用户表 status==3，DB 判定，不信任前端提交/文档型字段 */
+    private boolean isAdmin(Integer callerId) {
+        if (callerId == null) {
+            return false;
+        }
+        User u = userMapper.findById(callerId);     // callerId 已判空，可安全拆箱
+        return u != null && u.getStatus() == 3;
+    }
+
+    /* 校验当前登录用户能否操作属主为 owner 的内容：属主或管理员放行，否则 403 */
+    private void checkCanModify(int owner, Integer callerId) {
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        if (owner != callerId && !isAdmin(callerId)) {
+            throw new BusinessException(403, "无权操作：非作者或非管理员");
+        }
     }
 }

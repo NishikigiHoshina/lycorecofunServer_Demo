@@ -3,8 +3,9 @@ package com.lycorisfun.fun.Controller;
 import com.lycorisfun.fun.Annotation.RequireToken;
 import com.lycorisfun.fun.Entity.Post;
 import com.lycorisfun.fun.Exception.BusinessException;
+import com.lycorisfun.fun.Interceptor.TokenInterceptor;
 import com.lycorisfun.fun.Service.PostService;
-import com.lycorisfun.fun.VO.PostListVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -82,19 +83,31 @@ public class PostController {
 
     @PostMapping("/updatePostinfo")
     @RequireToken
-    public void updatePostinfo(@Valid @RequestBody Post post ){
+    public void updatePostinfo(@Valid @RequestBody Post post, HttpServletRequest request ){
         System.out.println(post);
-        if(post.getPostid()>0){
-            postService.updatePostInfo(post);
+        Integer callerId = TokenInterceptor.currentUserId(request);
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        if(post.getPostid()!=null && post.getPostid()>0){
+            postService.updatePostInfo(post, callerId);
+        } else {
+            throw new BusinessException(400,"参数错误：帖子ID无效");
         }
     }
 
 
     @PostMapping("/deletePost")
     @RequireToken
-    public void deletePost(@RequestParam Integer postid){
-        if(postid>0){
-            System.out.println("影响"+postService.delById(postid)+"行");
+    public void deletePost(@RequestParam Integer postid, HttpServletRequest request){
+        Integer callerId = TokenInterceptor.currentUserId(request);
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        if(postid!=null && postid>0){
+            System.out.println("影响"+postService.delById(postid, callerId)+"行");
+        } else {
+            throw new BusinessException(400,"参数错误：帖子ID无效");
         }
     }
 
@@ -110,29 +123,35 @@ public class PostController {
 
     @PostMapping("/writepost")
     @RequireToken
-    public Map<String, Object> writePost(@Valid @RequestBody Post post ){
+    public Map<String, Object> writePost(@Valid @RequestBody Post post, HttpServletRequest request ){
         Map<String, Object> map = new HashMap<>();
         if(post==null){
             throw new BusinessException(400,"参数错误，新增失败");
         }
-        if(post.getPost_userid()>0){
-            postService.add(post);
-            System.out.println("新增成功");
-            map.put("code", 200);
-            map.put("msg","发布成功");
-            return map;
-        }else {
-            throw new BusinessException(400,"参数错误，新增失败");
+        Integer callerId = TokenInterceptor.currentUserId(request);
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
         }
+        post.setPost_userid(callerId);          // 作者身份以登录态为准，忽略 body 提交值（防伪造）
+        postService.add(post);
+        System.out.println("新增成功");
+        map.put("code", 200);
+        map.put("msg","发布成功");
+        return map;
     }
 
     @PostMapping("/writecomment")
     @RequireToken
-    public Map<String,Object> writeContent(@Valid @RequestBody Post post ){
+    public Map<String,Object> writeContent(@Valid @RequestBody Post post, HttpServletRequest request ){
         Map<String, Object> map = new HashMap<>();
         if(post==null){
             throw new BusinessException(400,"参数错误，新增失败");
         }
+        Integer callerId = TokenInterceptor.currentUserId(request);
+        if (callerId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        post.setPost_userid(callerId);          // 评论/回复作者以登录态为准，忽略 body 提交值（防伪造）
         postService.addcontent(post);
         System.out.println("新增成功");
         map.put("code", 200);

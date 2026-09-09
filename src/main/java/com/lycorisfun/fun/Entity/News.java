@@ -8,6 +8,7 @@ public class News {
     private String time;
     private String imgurl;
     private String news_link;
+    private int status = 1;   // 显示状态：1=显示(默认)，0=软删除
     public News(int news_id, String title, String content, String author, String time, String imgurl, String news_link) {
         this.news_id = news_id;
         this.title = title;
@@ -75,6 +76,11 @@ public class News {
     public void setNews_link(String news_link) {
         this.news_link = news_link;
     }
-
+    public int getStatus() {
+        return status;
+    }
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
 }

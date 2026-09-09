@@ -13,9 +13,10 @@
     </select>
 
 
-    <insert id="add" parameterType="News">
-        insert into news(news_id,title,imgUrl,news_link)
-        values (#{news_id},#{title},#{imgUrl},#{news_link})
+    <!-- 新建新闻：news_id 自增不插入；status 缺省由实体默认/服务兜底为 1 -->
+    <insert id="add" parameterType="News" useGeneratedKeys="true" keyProperty="news_id">
+        insert into news(title,imgUrl,news_link,time,status)
+        values (#{title},#{imgurl},#{news_link},#{time},#{status})
     </insert>
 
     <select id="findByTitle" parameterType="String" resultType="News">
@@ -39,36 +40,33 @@
     <select id="findLatestNews" parameterType="Integer" resultType="News">
         select *
         from news
-        where imgUrl is not null ORDER BY time DESC          -- 按日期最新在前
-        LIMIT #{findnum};                   -- 只取  条
+        where imgUrl is not null AND status = 1              -- 仅展示未软删除(status=1)
+        ORDER BY time DESC                                   -- 按日期最新在前
+        LIMIT #{findnum}
     </select>
 
     <select id="findAnnouncement" resultType="News">
         select * from news where imgUrl is null
     </select>
 
+    <!-- 软删除：status 1(显示) -> 0(已删除) -->
     <update id="delbyid" parameterType="Integer">
         UPDATE news
-        SET    status = 2
-        WHERE  postd = #{news_id};
+        SET    status = 0
+        WHERE  news_id = #{news_id}
     </update>
 
-    <update id="updatePostInfo" parameterType="Post">
-        UPDATE posts
+    <!-- 编辑：String 缺省保留原值；status 恒更新（对话框总是带当前状态，可用于恢复 status=1） -->
+    <update id="updateNewsInfo" parameterType="News">
+        UPDATE news
         <set>
             <if test="title != null">title = #{title},</if>
-            <if test="post_userid != null">post_userid = #{post_userid},</if>
-            <if test="content != null">content = #{content},</if>
-            <if test="created_at != null">created_at = #{created_at},</if>
-            <if test="like_count != null">like_count = #{like_count},</if>
-            <if test="link != null">link = #{link},</if>
-            <if test="imgurl != null">imgurl = #{imgurl},</if>
-            <if test="parent_id != null">parent_id = #{parent_id},</if>
-            <if test="root_id != null">root_id = #{root_id},</if>
-            <if test="reply_count != null">reply_count = #{reply_count},</if>
-            <!-- 其他字段同理 -->
+            <if test="imgurl != null">imgUrl = #{imgurl},</if>
+            <if test="news_link != null">news_link = #{news_link},</if>
+            <if test="time != null">time = #{time},</if>
+            status = #{status}
         </set>
-        WHERE postid = #{postid}
+        WHERE news_id = #{news_id}
     </update>
 
 </mapper>

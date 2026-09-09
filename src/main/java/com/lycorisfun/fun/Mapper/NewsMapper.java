@@ -12,6 +12,7 @@ public interface NewsMapper {
     public News findById(int id);
 
     public int add(News news);
+    public int updateNewsInfo(News news);
     public int delbyid(int id);
     public List<News> findByTitle(String title);
     public List<News> findAllNews();

@@ -72,4 +72,23 @@ public class TokenInterceptor implements HandlerInterceptor {
         resp.getWriter().write("{\"code\":401,\"msg\":\"" + msg + "\"}");
         return false;
     }
+
+    /**
+     * 从 request 属性取当前登录用户 id（由本拦截器在验证通过后写入，String）。
+     * 供 Controller 在 @RequireToken 方法里读取真实身份；缺省/非数字一律返回 null（按未登录兜底）。
+     */
+    public static Integer currentUserId(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        Object v = request.getAttribute("userId");
+        if (v == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(v.toString());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

@@ -5,12 +5,9 @@ import com.lycorisfun.fun.Entity.User;
 import com.lycorisfun.fun.Exception.BusinessException;
 import com.lycorisfun.fun.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter;
 
-import java.io.IOException;
 import java.util.*;
 
 @RestController                 // ★ 1. 让 Spring 接管
@@ -20,14 +17,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    private final HttpRequestHandlerAdapter httpRequestHandlerAdapter;
-    private final HttpServletResponse httpServletResponse;
-
-    public UserController(HttpRequestHandlerAdapter httpRequestHandlerAdapter, HttpServletResponse httpServletResponse) {
-        this.httpRequestHandlerAdapter = httpRequestHandlerAdapter;
-        this.httpServletResponse = httpServletResponse;
-    }
-
     @GetMapping("/searchUser")
     public User searchUser(@RequestParam(value = "id",defaultValue = "1",required = false) Integer id,
                            @RequestParam(value = "name",defaultValue = "未知用户",required = false) String name) {
@@ -36,10 +25,8 @@ public class UserController {
         User user = new User();
         user.setUserId(id);
         user.setUserName(name);
-//        System.out.println("home");
         System.out.println("id:" + id);
         System.out.println("name:" + name);
-        //int a = 7 / 0;
         return user;
     }
 
@@ -83,7 +70,5 @@ public class UserController {
         map.put("data", u);
         return map;
     }
-
-
 
 }

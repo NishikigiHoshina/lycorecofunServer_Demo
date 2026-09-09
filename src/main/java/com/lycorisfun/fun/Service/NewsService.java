@@ -1,7 +1,6 @@
 package com.lycorisfun.fun.Service;
 
 import com.lycorisfun.fun.Entity.News;
-import com.lycorisfun.fun.Entity.Post;
 
 import java.util.List;
 
@@ -11,7 +10,9 @@ public interface NewsService {
 
     public void delById(Integer id);
 
-    public void add(Post userInfo);
+    public void add(News news);
+
+    public void update(News news);
 
     public News findById(Integer id);
 
