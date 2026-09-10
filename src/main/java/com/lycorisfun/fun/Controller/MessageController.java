@@ -90,4 +90,17 @@ public class MessageController {
         return map;
     }
 
+    // 更新全站公告（后台"站内管理"页）。公告即 news 表中 imgUrl 为 NULL 的那行
+    @PostMapping("/updateAnnouncement")
+    @RequireToken
+    public Map<String, Object> updateAnnouncement(@RequestBody Map<String, String> body,
+                                                 HttpServletRequest request) {
+        Map<String, Object> map = new HashMap<>();
+        requireNewsAdmin(request);
+        newsService.updateAnnouncement(body == null ? null : body.get("content"));
+        map.put("code", 200);
+        map.put("msg", "公告已更新");
+        return map;
+    }
+
 }

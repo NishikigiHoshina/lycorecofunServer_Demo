@@ -147,4 +147,30 @@ public class NewsServiceImpl implements NewsService {
             throw new BusinessException(404,"not found Announcement");
         }
     }
+
+    /**
+     * 更新全站公告（后台"站内管理"页）。
+     * 公告寄存在 news 表中 imgUrl 为 NULL 的行，正文放 news_link 列——与 findAnnouncement 读取口径一致。
+     * 尚无公告行时自动新建一条，保证全新库上点"更新"也能生效。
+     * 必须清 announcement 缓存：该 region 原先只靠 30 分钟 TTL 兜底，不主动失效会出现"改了不生效"。
+     */
+    @CacheEvict(cacheNames = "announcement", allEntries = true)
+    @Override
+    public void updateAnnouncement(String text) {
+        if (text == null) {
+            throw new BusinessException(400, "修改失败：公告内容不能为 null");
+        }
+        TextValidator.requireStorable(text, "公告内容");
+        if (newsMapper.countAnnouncement() > 0) {
+            newsMapper.updateAnnouncement(text);
+        } else {
+            News n = new News();
+            n.setTitle("公告");
+            n.setNews_link(text);          // imgUrl 保持 null → 该行即公告
+            n.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            n.setStatus(1);
+            newsMapper.add(n);
+        }
+        System.out.println("公告已更新");
+    }
 }

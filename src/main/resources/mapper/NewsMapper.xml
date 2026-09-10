@@ -45,8 +45,22 @@
         LIMIT #{findnum}
     </select>
 
+    <!-- 公告 = news 表中 imgUrl 为 NULL 的那条，正文寄存在 news_link 列。
+         limit 1：数据异常存在多条时取一条返回，避免 selectOne 抛 TooManyResults 变 500 -->
     <select id="findAnnouncement" resultType="News">
-        select * from news where imgUrl is null
+        select * from news where imgUrl is null limit 1
+    </select>
+
+    <!-- 公告更新：把正文写到 news_link；无公告行时由 Service 走新增 -->
+    <update id="updateAnnouncement">
+        UPDATE news
+        SET    news_link = #{text}
+        WHERE  imgUrl is null
+    </update>
+
+    <!-- 是否存在公告行：用于 update-or-insert 判断 -->
+    <select id="countAnnouncement" resultType="int">
+        select count(*) from news where imgUrl is null
     </select>
 
     <!-- 软删除：status 1(显示) -> 0(已删除) -->

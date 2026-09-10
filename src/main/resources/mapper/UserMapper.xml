@@ -39,6 +39,7 @@
         UPDATE users
         <set>
             <if test="userName != null">userName = #{userName},</if>
+            <if test="registerTime != null">registerTime = #{registerTime},</if>
             <if test="gender != null">gender = #{gender},</if>
             <if test="signature != null">signature = #{signature},</if>
             <if test="avaterURL != null">avaterURL = #{avaterURL},</if>

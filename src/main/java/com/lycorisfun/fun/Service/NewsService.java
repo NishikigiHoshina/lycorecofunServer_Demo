@@ -23,4 +23,7 @@ public interface NewsService {
     public List<News> findLatestNews(Integer num);
 
     public News findAnnouncement();
+
+    /* 更新全站公告（无公告行时自动新建一条） */
+    public void updateAnnouncement(String text);
 }

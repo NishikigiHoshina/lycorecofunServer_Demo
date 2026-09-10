@@ -1,9 +1,12 @@
 package com.lycorisfun.fun.Controller;
 
+import com.lycorisfun.fun.Annotation.RequireToken;
 import com.lycorisfun.fun.Entity.User;
 
 import com.lycorisfun.fun.Exception.BusinessException;
+import com.lycorisfun.fun.Mapper.UserMapper;
 import com.lycorisfun.fun.Service.UserService;
+import com.lycorisfun.fun.util.AuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @GetMapping("/searchUser")
     public User searchUser(@RequestParam(value = "id",defaultValue = "1",required = false) Integer id,
@@ -68,6 +74,34 @@ public class UserController {
         map.put("code", 200);
         map.put("msg", "success");
         map.put("data", u);
+        return map;
+    }
+
+    // 后台"用户管理"编辑对话框：更新用户资料（系统级写操作，仅管理员）
+    // 返回落库后的用户（不含 password），供前端就地刷新表格行
+    @PostMapping("/updateUserinfo")
+    @RequireToken
+    public Map<String, Object> updateUserinfo(@RequestBody User user, HttpServletRequest request) {
+        AuthUtil.requireAdmin(request, userMapper);
+        User updated = userService.updateUserInfo(user);
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 200);
+        map.put("msg", "保存成功");
+        map.put("data", updated);
+        return map;
+    }
+
+    // 后台"用户管理"删除用户：软删除（users.status 置 2 停用），仅管理员。
+    // 注意与帖子的 /deletePost 区分：此前前端误用帖子端点，会删掉同号帖子。
+    @PostMapping("/deleteUser")
+    @RequireToken
+    public Map<String, Object> deleteUser(@RequestParam("userid") Integer userid,
+                                         HttpServletRequest request) {
+        AuthUtil.requireAdmin(request, userMapper);
+        userService.deletebyid(userid);
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 200);
+        map.put("msg", "已停用该用户");
         return map;
     }
 

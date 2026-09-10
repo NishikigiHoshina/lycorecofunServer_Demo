@@ -152,27 +152,56 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * 后台用户管理：更新用户资料（调用方须已通过管理员校验）。
+     * 入参是"部分更新"语义——某字段为 null 表示不改该列（对应 XML 里的 if test="x != null"）。
+     * 三处与旧实现不同的关键点：
+     *   1. password 传了才改，且必须加盐哈希后落库（旧实现直接存明文）；
+     *   2. email 有 UNIQUE 约束，改成已被占用的邮箱先查重给友好 400，而不是撞库变 500；
+     *   3. status 是原始 int，XML 的 if test="status != null" 对 int 恒真 → 一定会写库，
+     *      所以这里必须挡掉非法值（0 视为"未提供"，保留原状态）。
+     */
     @Override
     public User updateUserInfo(User user){
-        if (user == null) {
-            throw new BusinessException(400,"修改失败，未查找到用户");
+        if (user == null || user.getUserId() == null) {
+            throw new BusinessException(400,"修改失败：缺少用户ID");
         }
+        int targetId = user.getUserId();
+        // 目标用户必须存在（ID 无效/不存在时由此抛 400/404）
+        User existing = findById(targetId);
+
+        // 入库前字符校验（库 utf8mb3，拦截 emoji 等 4 字节字符）
+        TextValidator.requireStorable(user.getUserName(), "用户名");
+        TextValidator.requireStorable(user.getSignature(), "签名");
+        TextValidator.requireStorable(user.getAvaterURL(), "头像链接");
+        TextValidator.requireStorable(user.getPersonalIndexLink(), "个人主页链接");
+
         User u=new User();
-        if(user.getUserId()==0){
-            throw new BusinessException(400,"修改失败，未查找到用户");
-        }
-        u.setUserId(user.getUserId());//通过id匹配用户对象
+        u.setUserId(targetId);//通过id匹配用户对象
         if(user.getUserName()!=null){
             u.setUserName(user.getUserName());
         }
-        if(user.getPassword()!=null){
-            u.setPassword(user.getPassword());
+        if(user.getPassword()!=null && !user.getPassword().isEmpty()){
+            u.setPassword(Md5SaltUtil.encrypt(user.getPassword()));  // 必须加盐哈希，绝不存明文
         }
-        if(user.getEmail()!=null){
+        if(user.getEmail()!=null && !user.getEmail().equals(existing.getEmail())){
+            // email 列有 UNIQUE 约束：先查占用，避免插入时抛约束异常变成 500
+            User owner = null;
+            try {
+                owner = userMapper.findByEmail(user.getEmail());
+            } catch (BusinessException notFound) {
+                // findByEmail 未命中会抛 404，说明该邮箱可用
+            }
+            if (owner != null && !owner.getUserId().equals(targetId)) {
+                throw new BusinessException(400,"修改失败：邮箱已被其他用户使用");
+            }
             u.setEmail(user.getEmail());
         }
         if(user.getGender()!=null){
             u.setGender(user.getGender());
+        }
+        if(user.getRegisterTime()!=null){
+            u.setRegisterTime(user.getRegisterTime());
         }
         if(user.getSignature()!=null){
             u.setSignature(user.getSignature());
@@ -183,8 +212,21 @@ public class UserServiceImpl implements UserService {
         if(user.getPersonalIndexLink()!=null){
             u.setPersonalIndexLink(user.getPersonalIndexLink());
         }
-        int n=userMapper.updateUserInfo(u);      // 实际只生成 SET email=?, WHERE id=12
+        // status：0 = 未提供 → 保留原状态；合法值只有 1/2/3（UserMapper.xml 里 status 恒更新）
+        int status = user.getStatus();
+        if (status == 0) {
+            status = existing.getStatus();
+        } else if (status != 1 && status != 2 && status != 3) {
+            throw new BusinessException(400,"修改失败：状态只能为 1(正常)/2(停用)/3(管理员)");
+        }
+        u.setStatus(status);
+
+        int n=userMapper.updateUserInfo(u);
+        if (n != 1) {
+            throw new BusinessException(500,"修改失败：数据修改未生效（影响行数："+n+"）");
+        }
         System.out.println("修改成功，影响:"+n+"行");
+        u.setPassword(null);     // 返回体不带密文
         return u;
     }
 

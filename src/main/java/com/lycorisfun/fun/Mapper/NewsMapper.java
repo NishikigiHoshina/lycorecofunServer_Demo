@@ -3,6 +3,7 @@ package com.lycorisfun.fun.Mapper;
 import com.lycorisfun.fun.Entity.News;
 import com.lycorisfun.fun.Entity.Post;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,4 +19,8 @@ public interface NewsMapper {
     public List<News> findAllNews();
     public List<News> findLatestNews(Integer num);
     public News findAnnouncement();
+
+    /* 公告（imgUrl 为 NULL 的行）更新与存在性判断 */
+    public int updateAnnouncement(@Param("text") String text);
+    public int countAnnouncement();
 }
