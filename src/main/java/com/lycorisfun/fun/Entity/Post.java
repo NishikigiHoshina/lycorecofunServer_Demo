@@ -9,6 +9,13 @@ public class Post {
     private int post_userid;
     private String post_username;
     private String content;
+    /**
+     * 结构化正文文档 JSON（schema v1），**不是 posts 表的列**，故不入 resultMap：
+     * - 写入时：由请求体携带（客户端提交 JSON 字符串），经 PostDocService 校验后落 post_bodies.doc；
+     * - 读出时：PostServiceImpl.findById 用 PostBodyMapper 单独查出并挂上（随 postDetail 缓存）。
+     * 为 null 表示"存量帖子"——那时 content 里是短 HTML，由前端转换后渲染。
+     */
+    private String doc;
     private String created_at;
     private String title;
     private String link;
@@ -88,6 +95,14 @@ public class Post {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getDoc() {
+        return doc;
+    }
+
+    public void setDoc(String doc) {
+        this.doc = doc;
     }
 
     public String getCreated_at() {

@@ -2,17 +2,22 @@ package com.lycorisfun.fun.Service.impl;
 
 
 import com.lycorisfun.fun.Entity.Post;
+import com.lycorisfun.fun.Entity.PostBody;
 import com.lycorisfun.fun.Entity.User;
 import com.lycorisfun.fun.Exception.BusinessException;
+import com.lycorisfun.fun.Mapper.PostBodyMapper;
 import com.lycorisfun.fun.Mapper.PostMapper;
 import com.lycorisfun.fun.Mapper.UserMapper;
+import com.lycorisfun.fun.Service.PostDocService;
 import com.lycorisfun.fun.Service.PostService;
+import com.lycorisfun.fun.util.PostDocText;
 import com.lycorisfun.fun.util.TextValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +31,14 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private UserMapper userMapper;
+
+    /** 帖子正文（结构化文档）另表存取 */
+    @Autowired
+    private PostBodyMapper postBodyMapper;
+
+    /** 正文校验/规范化、摘要与首图抽取 */
+    @Autowired
+    private PostDocService postDocService;
 
     @Override
     public List<Post> findAll() {
@@ -72,26 +85,48 @@ public class PostServiceImpl implements PostService {
     }
 
 
+    /**
+     * 发帖。
+     *
+     * <p>正文与主表分两处落库：{@code posts.content} 存**纯文本摘要**（≤255 字，正好适配该列
+     * 现有宽度，因此不必改列类型），结构化文档存 {@code post_bodies.doc}（MEDIUMTEXT）。
+     * 两步必须原子，故加 {@code @Transactional}。</p>
+     *
+     * <p>落库的文档是**服务端产出的规范 JSON**，不是客户端原样提交的内容——这是本链路的信任边界。</p>
+     */
     @CacheEvict(cacheNames = "postPage", allEntries = true)
+    @Transactional
     @Override
     public void add(Post post) {
         if (post == null) {
             throw new BusinessException(400, "新增失败：帖子内容不能为null");
         }
+        // 白名单校验 + 规范化（不合规抛 400）
+        String canonicalDoc = postDocService.validateAndNormalize(post.getDoc());
 
         post.setCreated_at(LocalDateTime.now().toString());
 
-        if(post.getTitle().isEmpty()){
+        if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
             post.setTitle("无标题");
+        }
+        // 库为 utf8mb3：标题单独校验（正文已在校验器里过了一遍）
+        TextValidator.requireStorable(post.getTitle(), "标题");
+        post.setDoc(null);                                            // doc 不是 posts 的列
+        post.setContent(postDocService.toExcerpt(canonicalDoc));      // 摘要
+        String cover = postDocService.firstImageSrc(canonicalDoc);    // 正文首图 → 列表封面
+        if (cover != null) {
+            post.setImgurl(cover);
         }
         post.setStatus(1);
         post.setReply_count(0);
         post.setLike_count(0);
         post.setPost_username(userMapper.findById(post.getPost_userid()).getUserName());
-        int affectedRows = postMapper.add(post);
+        int affectedRows = postMapper.add(post);                      // useGeneratedKeys 回填 postid
         if (affectedRows != 1) {
             throw new BusinessException(500, "新增失败：插入数据未生效（影响行数：" + affectedRows + "）");
         }
+        postBodyMapper.upsert(new PostBody(post.getPostid(), canonicalDoc, null));
+        post.setDoc(canonicalDoc);                                    // 回填，供响应体直接渲染
         System.out.println("新增成功，影响："+affectedRows+"行");
     }
 
@@ -151,6 +186,9 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new BusinessException(404, "查询失败：ID为" + id + "的帖子不存在");
         }
+        // 挂上结构化正文（单独一张表，避免列表查询把大字段拖出来）。
+        // 为 null 表示存量帖子：那时 content 里是短 HTML，由前端转换后渲染。
+        post.setDoc(postBodyMapper.findDocByPostid(id));
         return post;
     }
 
@@ -292,9 +330,11 @@ public class PostServiceImpl implements PostService {
         if (postList == null) {
             return new ArrayList<>();
         }
-        // 列表视图不需要正文：在进入缓存前就清掉，避免缓存对象被 Controller 改写
+        // 列表视图只给纯文本预览，在进入缓存前就定型，避免缓存对象被 Controller 改写：
+        // 新帖的 content 已经是摘要；存量帖的 content 是短 HTML，这里剥成纯文本。
         for (Post post : postList) {
-            post.setContent("");
+            post.setContent(PostDocText.legacyExcerpt(post.getContent(), PostDocText.DEFAULT_EXCERPT_CHARS));
+            post.setDoc(null);          // 列表不带正文，避免把大字段塞进缓存
         }
         return postList;
     }

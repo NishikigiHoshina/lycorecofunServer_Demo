@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lycorisfun.fun.Mapper.PostBodyMapper">
+
+    <!-- upsert：postid 是主键，重复时覆盖 doc 与 updated_at。
+         用一条语句而非"先 findById 再 insert/update"，避免并发下的竞态。 -->
+    <insert id="upsert" parameterType="PostBody">
+        insert into post_bodies(postid, doc, updated_at)
+        values (#{postid}, #{doc}, now())
+        on duplicate key update
+            doc        = values(doc),
+            updated_at = values(updated_at)
+    </insert>
+
+    <select id="findDocByPostid" resultType="String">
+        select doc from post_bodies where postid = #{postid}
+    </select>
+
+    <delete id="deleteByPostid">
+        delete from post_bodies where postid = #{postid}
+    </delete>
+
+</mapper>

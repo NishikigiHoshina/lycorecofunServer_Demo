@@ -27,7 +27,8 @@
         where parent_id=#{parent_id};
     </select>
 
-    <insert id="add" parameterType="Post">
+    <!-- useGeneratedKeys：发帖后需要拿到自增 postid，才能接着写 post_bodies（正文另表） -->
+    <insert id="add" parameterType="Post" useGeneratedKeys="true" keyProperty="postid">
         insert into posts(postid,title,post_userid,content,created_at,like_count,link,imgurl,parent_id,root_id,status,reply_count,post_username)
         values (#{postid},#{title},#{post_userid},#{content},#{created_at},#{like_count},#{link},#{imgurl},#{parent_id},#{root_id},#{status},#{reply_count},#{post_username})
     </insert>
@@ -63,6 +64,10 @@
             <if test="parent_id != null">parent_id = #{parent_id},</if>
             <if test="root_id != null">root_id = #{root_id},</if>
             <if test="reply_count != null">reply_count = #{reply_count},</if>
+            <!-- status：后台"帖子状态"下拉需要它才真正生效（此前该列不在 <set> 里，改状态是静默无效的）。
+                 status 是原始 int，条件恒真，所以只要走这个接口就一定会写；调用方传的是当前行原值，
+                 只有管理员在弹窗里显式改过才会变化。 -->
+            status = #{status},
             <!-- 其他字段同理 -->
         </set>
         WHERE postid = #{postid}
