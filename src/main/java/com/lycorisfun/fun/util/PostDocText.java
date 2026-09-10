@@ -3,6 +3,8 @@ package com.lycorisfun.fun.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Set;
+
 /**
  * 正文文档的文本抽取工具（纯函数，无 Spring 依赖）。
  *
@@ -22,6 +24,10 @@ public final class PostDocText {
 
     /** 图片在摘要中的占位，避免"纯图片帖子"在列表里显示成空白 */
     private static final String IMAGE_PLACEHOLDER = "[图片]";
+
+    /** 抽取文本时需要与前后文隔开的节点类型（块级 + 列表项 + 图片） */
+    private static final Set<String> BLOCK_LIKE =
+            Set.of("p", "h2", "h3", "blockquote", "ul", "ol", "pre", "li", "img");
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -99,13 +105,29 @@ public final class PostDocText {
         }
         if (node.isObject()) {
             JsonNode t = node.get("t");
-            if (t != null && "img".equals(t.asText())) {
+            String type = (t != null && t.isTextual()) ? t.asText() : null;
+            // 块级之间留一个空格，否则摘要会变成"第一段第二段"这种连读
+            // （行内标记之间**不加**，它们是同一句话的一部分）
+            // 注意 type 可能为 null（整篇文档的根对象就没有 t）：Set.of(...) 是不可变集合，
+            // contains(null) 会直接抛 NPE，所以必须先判 null。
+            if (type != null && BLOCK_LIKE.contains(type)) {
+                appendSeparator(sb);
+            }
+            if ("img".equals(type)) {
                 sb.append(IMAGE_PLACEHOLDER);
                 return;                     // 图片节点无文本子节点
             }
             // 两种入参形态都要接受：单个节点的子内容在 c 下，而整篇文档 {v,nodes} 的子内容在 nodes 下。
             collect(node.get("c"), sb);
             collect(node.get("nodes"), sb);
+        }
+    }
+
+    /** 若已累积内容且末尾不是空格，就补一个空格 */
+    private static void appendSeparator(StringBuilder sb) {
+        int len = sb.length();
+        if (len > 0 && sb.charAt(len - 1) != ' ') {
+            sb.append(' ');
         }
     }
 

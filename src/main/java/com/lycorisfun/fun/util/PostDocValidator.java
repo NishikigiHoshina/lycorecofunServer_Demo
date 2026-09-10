@@ -216,7 +216,7 @@ public final class PostDocValidator {
             requireNoUnknownKeys(li, Set.of("t", "c"), "li");
             countNode(ctx);
             ArrayNode inline = normalizeInlineArray(li.get("c"), ctx, 1, allowedSrcPrefixes);
-            if (inline.size() > 0) {
+            if (!isBlankInline(inline)) {
                 ObjectNode item = MAPPER.createObjectNode();
                 item.put("t", "li");
                 item.set("c", inline);
@@ -236,7 +236,7 @@ public final class PostDocValidator {
                                                  Set<String> allowedSrcPrefixes) {
         requireNoUnknownKeys(n, Set.of("t", "c"), type);
         ArrayNode inline = normalizeInlineArray(n.get("c"), ctx, 1, allowedSrcPrefixes);
-        if (inline.size() == 0) {
+        if (isBlankInline(inline)) {
             // 丢弃空段落：wangEditor 的空行会产出 <p><br></p>，留着重渲染就是一堆空行
             return null;
         }
@@ -244,6 +244,21 @@ public final class PostDocValidator {
         o.put("t", type);
         o.set("c", inline);
         return o;
+    }
+
+    /**
+     * 行内内容是否"没有实际内容"：全是空白文本、且没有任何节点。
+     *
+     * <p>必须用这个方法而不是 {@code size() == 0} 判断 —— 否则 {@code {"t":"p","c":["   "]}}
+     * 这类纯空白段落会被当成合法正文放行，帖子建得出来、摘要却是空的。</p>
+     */
+    private static boolean isBlankInline(ArrayNode c) {
+        for (JsonNode child : c) {
+            if (!child.isTextual() || !child.asText().isBlank()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /* ==================== 行内 ==================== */

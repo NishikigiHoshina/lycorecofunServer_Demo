@@ -33,13 +33,17 @@
 ```
 - 端口 `12808`，上下文 `/lycorisfunServer`；接口前缀 `http://localhost:12808/lycorisfunServer/api/**`。
 - 数据库账号口令见 `src/main/resources/application.properties`（当前为占位 `XXX`，运行前按本地库填回）；`mybatis.type-aliases-package` 须为 **`com.lycorisfun.fun.Entity`**（大写 E）。
-- **首次运行前先建表**（帖子正文表，不建则发帖会 500）：
+- **首次运行前先建库建表**：
 
   ```bash
+  # 全新环境：建库 + 全部 8 张表 + 全字段注释
+  mysql -uroot -p --default-character-set=utf8mb4 < sql/schema.sql
+
+  # 库已在跑、只需补「帖子正文表」这一张（发帖会用到，缺了会 500）
   mysql -uroot -p --default-character-set=utf8mb4 useforcommon < sql/post_bodies.sql
   ```
 
-  ⚠️ `--default-character-set=utf8mb4` 不能省：少了它，表能建出来但**表/列的中文注释会变成乱码**（客户端按本地代码页解释 UTF-8 脚本）。建错了 `DROP TABLE post_bodies;` 重建即可。
+  ⚠️ `--default-character-set=utf8mb4` 不能省：少了它，表能建出来但**表/列的中文注释会变成乱码**（客户端按本地代码页解释 UTF-8 脚本）。建错了 `DROP TABLE`／`DROP DATABASE` 后重建即可。
 
 ---
 
@@ -116,7 +120,7 @@ lycorisfunServer/
 | 契约与上限 | `util/PostDocValidator` 常量 | `v:1`；块级 `p/h2/h3/blockquote/ul/ol/pre/img`、行内 `b/i/u/code/a/img`；JSON ≤64KB、节点 ≤500、图片 ≤20、行内嵌套 ≤4、单文本 ≤5000 字符 |
 | 校验 | `util/PostDocValidator` | **唯一信任边界**。拒绝未知键、`href` 仅 http/https/mailto、`img.src` 必须匹配上传 `urlPath` 前缀、所有字符串过 `TextValidator`。落库的是**服务端产出的规范 JSON** |
 | 落库 | `posts.content` + `post_bodies.doc` | `content` = **纯文本摘要**（≤255 字，正好适配该列 `varchar(255)`，**无需改列类型**）；`doc` = 规范 JSON。`add()` 带 `@Transactional`，两步原子 |
-| 派生字段 | `util/PostDocText` | 摘要（`toExcerpt`）、封面首图（`firstImageSrc`，回填 `posts.imgurl`）、存量 HTML 剥标签（`legacyExcerpt`） |
+| 派生字段 | `util/PostDocText` | 摘要（`toExcerpt`，块级之间以空格分隔）、封面首图（`firstImageSrc`，回填 `posts.imgurl`）、存量 HTML 剥标签（`legacyExcerpt`） |
 | 读取 | `PostServiceImpl` | 详情用 `PostBodyMapper` 把 `doc` 挂到 Post 上；列表只给纯文本摘要 |
 
 - **入参形态**：`doc` 是**JSON 字符串**（HTTP body 里 `{"title": "...", "doc": "{\"v\":1,...}"}`），不是嵌套对象。
@@ -164,7 +168,33 @@ lycorisfunServer/
 
 ---
 
+## 测试
+
+后端带一套 JUnit 5 接口测试，**127 条用例、0 失败**，覆盖全部 35 个接口。
+
+```bash
+./mvnw test                      # 执行全部测试（需 MySQL 可用且已建库建表）
+./mvnw test -Dtest=PostApiTest   # 只跑某个测试类
+```
+
+| 层次 | 测试类 | 覆盖内容 |
+| --- | --- | --- |
+| 单元（纯函数，不依赖 Spring/DB） | `unit/PostDocValidatorTest`（27 条）、`unit/PostDocTextTest`（17 条） | 正文白名单校验与规范化、摘要/首图抽取、存量 HTML 剥标签 |
+| 接口集成（`@SpringBootTest` + MockMvc） | `api/AuthApiTest`、`PostApiTest`、`UploadApiTest`、`NewsApiTest`、`UserApiTest`、`SettingApiTest`、`ExceptionMappingTest` | 认证鉴权、帖子/评论/留言、配图上传、新闻公告、用户管理、功能开关、异常与状态码映射 |
+
+三个值得一提的测试设计：
+
+1. **事务回滚**：接口测试用类级 `@Transactional` + MockMvc（同线程），用例可以放心注册用户、发帖、删帖，方法结束统一回滚 —— **不污染开发数据库**。
+2. **上传目录隔离**：事务管不到磁盘文件，因此测试把 `lycorisfun.upload.root` 指到 `target/test-upload`，用完清理，不往真实上传目录扔测试图片。
+3. **断言直接查库**：不只校验响应，还核对真的落库了（摘要内容、`imgurl` 回填、`post_bodies` 是否写入、口令是否为加盐密文）。
+
+> 注意：**`mvn test` 现在需要 MySQL 可用且已完成建库建表**；打包时想跳过测试仍可用 `./mvnw clean package -DskipTests`。
+> 详细用例清单、覆盖率与缺陷记录见工作区根目录 `接口测试报告(lycorisfunServer).md`。
+
+---
+
 ## 相关文档
 
 - 后端历史变更、遗留问题、数据库逐列说明：工作区根目录 `后端项目结构说明(lycorisfunServer).md`。
+- **接口测试报告**（用例清单、覆盖率、缺陷记录）：工作区根目录 `接口测试报告(lycorisfunServer).md`。
 - 前端：`posts/README.md` 及 `前端项目结构说明(posts).md`。
